@@ -4,3 +4,6 @@ pillow
 easyocr
 pyyaml
 pytest
+sqlalchemy
+alembic
+psycopg2-binary
