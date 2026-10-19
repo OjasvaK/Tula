@@ -37,6 +37,28 @@ def extract_text_with_confidence(path: str):
     ]
 
 
+_easyocr_reader = None
+
+
+def get_easyocr_reader():
+    """Lazily instantiate and cache the EasyOCR reader (model load is slow,
+    ~seconds, so this must not run per-request)."""
+    global _easyocr_reader
+    if _easyocr_reader is None:
+        import easyocr
+
+        _easyocr_reader = easyocr.Reader(["en"], gpu=False)
+    return _easyocr_reader
+
+
+def extract_text_easyocr(path: str) -> str:
+    """Primary text extraction path: EasyOCR outperformed Tesseract on real
+    product-label photos in Phase 1 testing (see MEMORY.md)."""
+    reader = get_easyocr_reader()
+    results = reader.readtext(path, detail=0)
+    return "\n".join(results)
+
+
 def is_blurry(image_path: str, threshold: float = 100.0) -> bool:
     """Cheap, training-free 'AI polish': flags images too blurry for
     reliable OCR so they route to manual review instead of a false verdict."""

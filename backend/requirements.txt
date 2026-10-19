@@ -7,3 +7,10 @@ pytest
 sqlalchemy
 alembic
 psycopg2-binary
+fastapi
+uvicorn
+python-multipart
+python-jose[cryptography]
+bcrypt
+httpx
+python-dotenv
