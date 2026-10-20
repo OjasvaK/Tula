@@ -3,7 +3,7 @@
 Running log of build progress against the roadmap in `MASTER-PROJECT-SPEC.md` Part 9.
 Updated after each phase / meaningful chunk of work. Read this first when resuming.
 
-**Last updated:** 2026-08-26
+**Last updated:** 2026-08-27
 
 ---
 
@@ -14,13 +14,13 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 | 1 | Environment + OCR basics | ✅ Done |
 | 2 | Rule engine + tests | ✅ Done |
 | 3 | Database + migrations | ✅ Done |
-| 4 | Backend API + auth | ⏳ Not started — waiting on go-ahead |
+| 4 | Backend API + auth | ✅ Done |
 | 5 | Frontend dashboard | Not started |
 | 6 | Dockerize everything | Not started |
 | 7 | CI + deploy | Not started |
 | 8 | ML polish, more languages/rules, CSV export | Not started (ongoing/future) |
 
-**Next action:** Start Phase 4 (backend API + auth) — only when explicitly told to.
+**Next action:** Start Phase 5 (frontend dashboard) — only when explicitly told to.
 
 ---
 
@@ -49,6 +49,19 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 - Verified for real, not just "commands ran": brought up Postgres via `docker compose up -d`, generated + applied the initial migration, inserted a test row, **restarted the db container, confirmed the row survived**, then deleted the test row.
 - Docker quirk hit and fixed: `docker-credential-desktop` not found on PATH when running from this shell — fixed by adding Docker's `resources/bin` dir to PATH before invoking `docker compose`.
 
+### Phase 4 — Backend API + auth
+- `backend/app/config.py` (settings from `.env` via `python-dotenv`), `backend/app/schemas.py` (Pydantic response shapes), `backend/app/auth.py` (JWT login, password hashing), `backend/app/routers/{ingest,listings,stats}.py`, `backend/app/main.py` (wires it all up + CORS).
+- All routes except `/login` and `/health` require a JWT (`Authorization: Bearer ...`). No public self-registration — `backend/app/seed_user.py` creates accounts out-of-band (this is an internal regulator tool, not a consumer product).
+- **Three deliberate deviations from the spec's literal sample code**, each a real fix, not a style choice:
+  1. `bcrypt` used directly instead of `passlib[bcrypt]` — passlib is unmaintained and breaks against recent bcrypt releases.
+  2. `database.py`'s `get_db()` is a proper request-scoped generator dependency that closes its session. The spec's own inline `db = SessionLocal()` calls never closed the session — a real connection leak under load.
+  3. `ingest.py` sanitizes uploaded filenames (`uuid4().hex` prefix + `Path(...).name` only) before saving — the spec's literal `f"sample_data/images/{file.filename}"` is a path-traversal/overwrite hole (an attacker-chosen filename like `../../x` would escape the upload dir).
+- OCR wiring: `/ingest` calls `extract_text_easyocr()` (new in `ocr.py`), not Tesseract — per the Phase 1 finding. Uses a lazy singleton `easyocr.Reader` so the model loads once per process, not per request.
+- `backend/tests/test_api.py` — 8 new pytest cases (login success/failure, auth-required on every protected route, and a full ingest → listings → stats round trip against the *real* sample image + real Postgres + real EasyOCR). Uses its own dedicated test user/platform tag and cleans up every row and uploaded file it creates, in a module-scoped fixture. All 22 tests (14 rules + 8 api) pass.
+- Verified beyond pytest: ran the actual server with `uvicorn`, drove the full `login → ingest → listings → stats/trends` flow over real HTTP with `curl`, confirmed `missing_fields` and `stats/trends` counts matched the rule-engine results, then cleaned up the manual test listing and its uploaded file.
+- Fixed one more pre-existing warning while in the area: `models.py` used `datetime.datetime.utcnow` (deprecated) as a column default; replaced with a small `_utcnow()` helper — no schema/migration change, same stored value.
+- Minor version note: this environment's `fastapi`/`starlette` versions are quite recent (`fastapi==0.141.1`) — `app.routes` no longer flattens included-router routes into plain `APIRoute` objects for introspection (shows as `_IncludedRouter`); this didn't affect actual request handling, only how I sanity-checked it (switched to `TestClient` requests instead of introspecting `app.routes`).
+
 ### Data notes
 - `backend/sample_data/images/` — two real product-label photos (Dhaga Mishri rock candy, Siddh Mahakal Bura sugar), used for the Phase 1 OCR comparison and Phase 2 sanity check. Committed.
 - `backend/sample_data/csv/amazon_vfl_reviews.csv` — user-added Kaggle-style Amazon **review** dataset (`asin, name, date, rating, review`). Checked: it has no label/declaration fields (no MRP, net quantity, country of origin, etc.), so it doesn't fit this pipeline, which checks OCR'd label text, not review text. **Left as-is, not wired into anything, not committed.**
@@ -67,15 +80,23 @@ docker compose up -d
 # C:\Users\ojasva koolwal\AppData\Local\Programs\DockerDesktop\resources\bin\
 
 cd backend
-../.venv/Scripts/python.exe -m pytest tests/ -v          # rule engine tests
+../.venv/Scripts/python.exe -m pytest tests/ -v          # all tests (rules + api)
 ../.venv/Scripts/python.exe -m alembic upgrade head       # apply migrations if needed
+
+# run the API server (PYTHONUTF8=1 avoids the Windows console encoding crash noted above)
+PYTHONUTF8=1 ../.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000
+# docs at http://127.0.0.1:8000/docs
+
+# there's a dev login already seeded: admin / dev-password-123 (change before any real deploy)
+# to add another: ../.venv/Scripts/python.exe -m app.seed_user <username> <password>
 ```
 
 ---
 
 ## Decisions to keep in mind going forward
 
-- **OCR default:** prefer EasyOCR output as the primary text source once ingest is wired up (Phase 4); Tesseract is the secondary/fast comparison, not the primary.
+- **OCR default:** `/ingest` uses EasyOCR (`extract_text_easyocr` in `ocr.py`) as the primary text source, as of Phase 4; Tesseract (`extract_text`) remains the secondary/fast comparison, not the primary.
+- **Auth:** no public signup. New accounts via `python -m app.seed_user <username> <password>` only.
 - **Repo layout:** everything lives directly under this folder — don't create a nested `compliance-checker/` folder to match the spec's literal tree.
 - **docker-compose.yml grows in Phase 6**, not now — don't add backend/frontend services early.
 - Deviations from `MASTER-PROJECT-SPEC.md` (if any arise) should be noted here **and** reflected back into the spec per its own Part 11 instruction to keep it in sync.
