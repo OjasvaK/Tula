@@ -15,12 +15,12 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 | 2 | Rule engine + tests | ✅ Done |
 | 3 | Database + migrations | ✅ Done |
 | 4 | Backend API + auth | ✅ Done |
-| 5 | Frontend dashboard | Not started |
+| 5 | Frontend dashboard | ✅ Done |
 | 6 | Dockerize everything | Not started |
 | 7 | CI + deploy | Not started |
 | 8 | ML polish, more languages/rules, CSV export | Not started (ongoing/future) |
 
-**Next action:** Start Phase 5 (frontend dashboard) — only when explicitly told to.
+**Next action:** Start Phase 6 (Dockerize everything) — only when explicitly told to.
 
 ---
 
@@ -62,6 +62,17 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 - Fixed one more pre-existing warning while in the area: `models.py` used `datetime.datetime.utcnow` (deprecated) as a column default; replaced with a small `_utcnow()` helper — no schema/migration change, same stored value.
 - Minor version note: this environment's `fastapi`/`starlette` versions are quite recent (`fastapi==0.141.1`) — `app.routes` no longer flattens included-router routes into plain `APIRoute` objects for introspection (shows as `_IncludedRouter`); this didn't affect actual request handling, only how I sanity-checked it (switched to `TestClient` requests instead of introspecting `app.routes`).
 
+### Phase 5 — Frontend dashboard
+- `frontend/` scaffolded by hand (`npm init -y` + explicit installs), not via `npm create vite` — let npm resolve current-latest versions rather than guessing them for a bleeding-edge (2026) toolchain. Landed on **React 19, Vite 8, react-router-dom 7, @tanstack/react-query 5, recharts 3**.
+- `src/api/client.js` — axios instance, request interceptor attaches `Authorization: Bearer <token>` from `localStorage["access_token"]`, response interceptor clears the token and redirects to `/login` on 401 (except the `/login` call itself, to avoid a redirect loop on a bad-password attempt).
+- `src/api/auth.js` posts `/login` as `application/x-www-form-urlencoded` — required because the backend's `/login` is a FastAPI `OAuth2PasswordRequestForm` endpoint, not a JSON one.
+- `AuthContext` (`src/context/AuthContext.jsx`) + `ProtectedRoute` gate `/` behind login; `/login` route is public.
+- `ListingsTable` — search box (product/platform, client-side filter) + "flagged only" checkbox (server-side via `?flagged_only=`), flagged rows highlighted.
+- `ViolationChart` — Recharts bar chart of `/stats/trends`.
+- No upload/ingest UI yet — out of scope for Phase 5's done-when (table + chart + login); ingestion is still curl/API-only. Worth adding as Phase 8 polish if a live demo needs it.
+- **Verified in a real browser, not just build success.** No `chromium-cli` on this Windows machine (that's the Linux-container tool the `run` skill defaults to), so used Playwright directly: `npx playwright install chromium` + a small driver script. Confirmed: unauthenticated `/` redirects to `/login`; login with the seeded `admin` account redirects back to `/`; dashboard renders correctly both against an empty DB (empty-state messages, no errors) and after ingesting a real listing (chart bars + flagged row rendered correctly, screenshots taken). Zero console/network errors either way. `npm run build` also succeeds (one expected "chunk >500kB" warning from recharts+react+router+query bundled together — normal for this stack, a Phase 8 code-splitting candidate, not a bug).
+- Test listing + its uploaded image were cleaned up from the DB/disk after the browser check, same pattern as prior phases.
+
 ### Data notes
 - `backend/sample_data/images/` — two real product-label photos (Dhaga Mishri rock candy, Siddh Mahakal Bura sugar), used for the Phase 1 OCR comparison and Phase 2 sanity check. Committed.
 - `backend/sample_data/csv/amazon_vfl_reviews.csv` — user-added Kaggle-style Amazon **review** dataset (`asin, name, date, rating, review`). Checked: it has no label/declaration fields (no MRP, net quantity, country of origin, etc.), so it doesn't fit this pipeline, which checks OCR'd label text, not review text. **Left as-is, not wired into anything, not committed.**
@@ -89,6 +100,11 @@ PYTHONUTF8=1 ../.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000
 
 # there's a dev login already seeded: admin / dev-password-123 (change before any real deploy)
 # to add another: ../.venv/Scripts/python.exe -m app.seed_user <username> <password>
+
+# frontend (from repo root)
+cd frontend
+npm run dev       # http://localhost:5173 - note: use "localhost", not "127.0.0.1" (Vite bound only IPv6 loopback here)
+npm run build      # production build check
 ```
 
 ---
