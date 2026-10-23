@@ -3,7 +3,7 @@
 Running log of build progress against the roadmap in `MASTER-PROJECT-SPEC.md` Part 9.
 Updated after each phase / meaningful chunk of work. Read this first when resuming.
 
-**Last updated:** 2026-08-27
+**Last updated:** 2026-08-27 (session paused here, resuming next session)
 
 ---
 
@@ -21,6 +21,19 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 | 8 | ML polish, more languages/rules, CSV export | Not started (ongoing/future) |
 
 **Next action:** Start Phase 6 (Dockerize everything) — only when explicitly told to.
+
+---
+
+## Where we left off (2026-08-27, resuming next session)
+
+- Phase 6 has **not started**. User was briefed on what it involves but said to pick it up tomorrow.
+- **Left running right now:** backend (`uvicorn`, port 8000) and frontend (`npm run dev`, port 5173) dev servers, so the user could view the dashboard live. Postgres container also still up. **Check whether these are still running before starting Phase 6** — Dockerized versions will want the same ports (8000, 5173), so stop the local dev ones first to avoid a conflict.
+- DB was demo'd with the two sample-image listings, then explicitly cleared back to empty at the user's request — don't be surprised `/listings` is empty on resume, that's expected, not a bug.
+- **Phase 6 pre-briefing already given to the user** (so don't repeat it as new information, just act on it):
+  1. Local dev servers will be stopped to free ports 8000/5173 for the containerized versions.
+  2. The backend image needs `apt-get install tesseract-ocr` plus the full Python stack including PyTorch (EasyOCR) — expect a multi-hundred-MB-to-low-GB image and a first build that takes several minutes.
+  3. Default plan (unless user says otherwise): EasyOCR model files download on first container start, not baked into the image at build time — smaller image, simpler Dockerfile, one-time slow first `/ingest` call per container lifetime.
+- Also worth remembering for the Dockerfile itself: **`opencv-python` (not `-headless`) commonly fails at import time on slim Debian/Ubuntu base images** with `ImportError: libGL.so.1: cannot open shared object file` because there's no X11/GL there. Either add `libgl1`/`libglib2.0-0` to the `apt-get install` line, or switch to `opencv-python-headless` in `requirements.txt` (the API/container never renders to a display, so headless is arguably the more correct choice anyway — worth just switching instead of patching around it with extra system packages).
 
 ---
 
