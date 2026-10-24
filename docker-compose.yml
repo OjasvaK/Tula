@@ -7,6 +7,40 @@ services:
       POSTGRES_DB: compliance_db
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U compliance -d compliance_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://compliance:compliance@db:5432/compliance_db
+      # dev-only default; override with a real secret for any real deployment.
+      SECRET_KEY: dev-secret-change-in-production
+    ports: ["8000:8000"]
+    volumes:
+      - backend_uploads:/app/sample_data/images
+      # Persists EasyOCR's downloaded model files across container
+      # recreations so they aren't re-fetched from the internet every time.
+      - easyocr_models:/root/.EasyOCR
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # This is the URL the browser calls, so it must be host-reachable -
+        # NOT the "backend" service name, which only resolves inside the
+        # compose network.
+        VITE_API_URL: http://localhost:8000
+    depends_on: [backend]
+    ports: ["5173:80"]
 
 volumes:
   pgdata:
+  backend_uploads:
+  easyocr_models:
