@@ -3,7 +3,7 @@
 Running log of build progress against the roadmap in `MASTER-PROJECT-SPEC.md` Part 9.
 Updated after each phase / meaningful chunk of work. Read this first when resuming.
 
-**Last updated:** 2026-08-27 (session paused here, resuming next session)
+**Last updated:** 2026-08-27
 
 ---
 
@@ -16,24 +16,11 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 | 3 | Database + migrations | ✅ Done |
 | 4 | Backend API + auth | ✅ Done |
 | 5 | Frontend dashboard | ✅ Done |
-| 6 | Dockerize everything | Not started |
+| 6 | Dockerize everything | ✅ Done |
 | 7 | CI + deploy | Not started |
 | 8 | ML polish, more languages/rules, CSV export | Not started (ongoing/future) |
 
-**Next action:** Start Phase 6 (Dockerize everything) — only when explicitly told to.
-
----
-
-## Where we left off (2026-08-27, resuming next session)
-
-- Phase 6 has **not started**. User was briefed on what it involves but said to pick it up tomorrow.
-- **Left running right now:** backend (`uvicorn`, port 8000) and frontend (`npm run dev`, port 5173) dev servers, so the user could view the dashboard live. Postgres container also still up. **Check whether these are still running before starting Phase 6** — Dockerized versions will want the same ports (8000, 5173), so stop the local dev ones first to avoid a conflict.
-- DB was demo'd with the two sample-image listings, then explicitly cleared back to empty at the user's request — don't be surprised `/listings` is empty on resume, that's expected, not a bug.
-- **Phase 6 pre-briefing already given to the user** (so don't repeat it as new information, just act on it):
-  1. Local dev servers will be stopped to free ports 8000/5173 for the containerized versions.
-  2. The backend image needs `apt-get install tesseract-ocr` plus the full Python stack including PyTorch (EasyOCR) — expect a multi-hundred-MB-to-low-GB image and a first build that takes several minutes.
-  3. Default plan (unless user says otherwise): EasyOCR model files download on first container start, not baked into the image at build time — smaller image, simpler Dockerfile, one-time slow first `/ingest` call per container lifetime.
-- Also worth remembering for the Dockerfile itself: **`opencv-python` (not `-headless`) commonly fails at import time on slim Debian/Ubuntu base images** with `ImportError: libGL.so.1: cannot open shared object file` because there's no X11/GL there. Either add `libgl1`/`libglib2.0-0` to the `apt-get install` line, or switch to `opencv-python-headless` in `requirements.txt` (the API/container never renders to a display, so headless is arguably the more correct choice anyway — worth just switching instead of patching around it with extra system packages).
+**Next action:** Start Phase 7 (CI + deploy) — only when explicitly told to.
 
 ---
 
@@ -86,6 +73,16 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 - **Verified in a real browser, not just build success.** No `chromium-cli` on this Windows machine (that's the Linux-container tool the `run` skill defaults to), so used Playwright directly: `npx playwright install chromium` + a small driver script. Confirmed: unauthenticated `/` redirects to `/login`; login with the seeded `admin` account redirects back to `/`; dashboard renders correctly both against an empty DB (empty-state messages, no errors) and after ingesting a real listing (chart bars + flagged row rendered correctly, screenshots taken). Zero console/network errors either way. `npm run build` also succeeds (one expected "chunk >500kB" warning from recharts+react+router+query bundled together — normal for this stack, a Phase 8 code-splitting candidate, not a bug).
 - Test listing + its uploaded image were cleaned up from the DB/disk after the browser check, same pattern as prior phases.
 
+### Phase 6 — Dockerize everything
+- `backend/Dockerfile` (`python:3.14-slim`, `apt-get install tesseract-ocr`), `frontend/Dockerfile` (multi-stage: `node:lts-alpine` build → `nginx:alpine` serve, with `frontend/nginx.conf` adding an SPA `try_files ... /index.html` fallback so client routes like `/login` don't 404 on refresh). `docker-compose.yml` now runs all three services (`db`, `backend`, `frontend`), not just `db`.
+- **Real problem hit and fixed, not hypothetical:** the first build attempt installed the *default* PyPI `torch` wheel (526.6MB, CUDA build) and started pulling `nvidia_cudnn_cu13` (366MB) right after — heading toward several GB of GPU packages this CPU-only container will never use (`easyocr.Reader(..., gpu=False)`). Killed the build mid-download (`Stop-Process` on the `docker`/`docker-buildx`/`docker-compose` client PIDs — this does cancel the daemon-side BuildKit build) and fixed it: `backend/Dockerfile` now runs `pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu` in its own layer *before* `pip install -r requirements.txt`, so pip sees CPU-only torch (191.8MB) already satisfied when it resolves `easyocr`'s dependencies. Verified PyPI's `download.pytorch.org/whl/cpu` actually publishes `cp314`/`manylinux_2_28_x86_64` wheels before committing to the rebuild, since Python 3.14 is very new. **If touching this Dockerfile again: keep that install order, don't merge it back into one `pip install -r requirements.txt` line.**
+- **`backend/requirements.txt`: `opencv-python` → `opencv-python-headless`.** The GUI build fails to import on slim Debian (`ImportError: libGL.so.1: cannot open shared object file` — no X11/GL there). Headless needs no such libs and is the more correct choice anyway for a server that never renders to a display. Local `.venv` switched too (uninstalled `opencv-python`, installed `opencv-python-headless`) so dev and Docker stay on the same dependency, not silently diverging.
+- `docker-compose.yml`: `db` gets a `pg_isready` healthcheck; `backend` uses `depends_on: db: condition: service_healthy` so it never races Postgres startup (this exact race was a manual `pg_isready` polling loop back in Phase 3 — now the compose file handles it declaratively). Named volumes `backend_uploads` (uploaded images) and `easyocr_models` (`/root/.EasyOCR`) persist across container recreation without baking either into the image.
+- `frontend/Dockerfile`: `VITE_API_URL` is passed as a build `ARG`, not a compose `environment:` var — Vite bakes `VITE_*` vars into the static bundle at build time, and it has to be a browser-reachable URL (`http://localhost:8000`, the host-mapped port), not the internal service name `http://backend:8000` which only resolves inside the Docker network.
+- **Verified against a genuinely clean checkout**, not just "the build succeeded": `docker compose down -v` (drops the Postgres volume too) → `docker compose up -d --build`. Confirmed: all three containers up/healthy; backend logs show `alembic upgrade head` auto-applying the initial migration to the fresh DB before uvicorn starts, zero manual steps; seeded a login via `docker compose exec backend python -m app.seed_user admin dev-password-123`; drove the full `login → /listings` flow over real HTTP; ran a real `/ingest` through the container (EasyOCR downloaded its models at runtime into the `easyocr_models` volume) and got identical compliance results to the native run; drove the containerized frontend at `localhost:5173` with Playwright end-to-end (login redirect, dashboard render, zero console/network errors, screenshotted). Test listing + uploaded file cleaned up afterward via `docker compose exec`. Full local pytest suite (22 tests) re-run clean after the opencv-headless swap.
+- Image sizes: backend 2.29GB (tesseract + torch-cpu + opencv-headless — reasonable for what it does; would have been several GB more with the CUDA build), frontend 94.3MB, postgres:16 642MB (unchanged).
+- `.gitignore` now also excludes `.claude/` — a Claude Code session artifact (`scheduled_tasks.lock`) this environment created locally while waiting on the long Docker builds; not project source.
+
 ### Data notes
 - `backend/sample_data/images/` — two real product-label photos (Dhaga Mishri rock candy, Siddh Mahakal Bura sugar), used for the Phase 1 OCR comparison and Phase 2 sanity check. Committed.
 - `backend/sample_data/csv/amazon_vfl_reviews.csv` — user-added Kaggle-style Amazon **review** dataset (`asin, name, date, rating, review`). Checked: it has no label/declaration fields (no MRP, net quantity, country of origin, etc.), so it doesn't fit this pipeline, which checks OCR'd label text, not review text. **Left as-is, not wired into anything, not committed.**
@@ -94,14 +91,32 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 
 ## How to resume the local environment
 
-```bash
-# Python venv (has all backend deps incl. sqlalchemy/alembic/psycopg2/pytest/opencv/pytesseract/easyocr)
-.venv/Scripts/python.exe ...
+**Option A — full dockerized stack (Phase 6, closest to how it'll actually deploy):**
 
-# Bring Postgres back up (Docker Desktop must be running first)
-docker compose up -d
+```bash
 # if `docker` isn't found in this shell, Docker Desktop's CLI lives at:
 # C:\Users\ojasva koolwal\AppData\Local\Programs\DockerDesktop\resources\bin\
+docker compose up -d --build      # first run after a Dockerfile change needs --build
+docker compose ps                  # expect db (healthy), backend, frontend all Up
+docker compose logs backend        # check migrations applied / uvicorn started
+
+# fresh DB has no users - seed one (idempotent, no-ops if it already exists):
+docker compose exec backend python -m app.seed_user admin dev-password-123
+
+# http://localhost:5173 - frontend (nginx, static build)
+# http://127.0.0.1:8000/docs - backend API docs
+
+docker compose down                # stop everything, keep data (named volumes)
+docker compose down -v             # stop and wipe Postgres/uploads/EasyOCR-model volumes too
+```
+
+**Option B — local dev servers against dockerized Postgres only (faster iteration, what Phases 1-5 used):**
+
+```bash
+# Python venv (has all backend deps incl. sqlalchemy/alembic/psycopg2/pytest/opencv-headless/pytesseract/easyocr)
+.venv/Scripts/python.exe ...
+
+docker compose up -d db            # just Postgres, not backend/frontend containers
 
 cd backend
 ../.venv/Scripts/python.exe -m pytest tests/ -v          # all tests (rules + api)
@@ -120,6 +135,8 @@ npm run dev       # http://localhost:5173 - note: use "localhost", not "127.0.0.
 npm run build      # production build check
 ```
 
+Don't run both options' backend/frontend at once - they'll fight over ports 8000/5173.
+
 ---
 
 ## Decisions to keep in mind going forward
@@ -127,5 +144,6 @@ npm run build      # production build check
 - **OCR default:** `/ingest` uses EasyOCR (`extract_text_easyocr` in `ocr.py`) as the primary text source, as of Phase 4; Tesseract (`extract_text`) remains the secondary/fast comparison, not the primary.
 - **Auth:** no public signup. New accounts via `python -m app.seed_user <username> <password>` only.
 - **Repo layout:** everything lives directly under this folder — don't create a nested `compliance-checker/` folder to match the spec's literal tree.
-- **docker-compose.yml grows in Phase 6**, not now — don't add backend/frontend services early.
+- **PyTorch in any Docker context: always install CPU-only wheels from `download.pytorch.org/whl/cpu` first**, before anything that depends on torch (easyocr). Never let plain `pip install -r requirements.txt` resolve torch on its own in a container — it'll pull the CUDA build and several GB of unused `nvidia_*` packages. Applies to Phase 7's CI image too if one gets built there.
+- **`opencv-python-headless`, not `opencv-python`**, everywhere (`requirements.txt` and local `.venv`) — the GUI build doesn't import on slim Linux without extra system libs, and headless is the correct choice for a server that never displays anything anyway.
 - Deviations from `MASTER-PROJECT-SPEC.md` (if any arise) should be noted here **and** reflected back into the spec per its own Part 11 instruction to keep it in sync.
