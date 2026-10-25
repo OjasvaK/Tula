@@ -139,3 +139,43 @@ def test_ingest_requires_auth():
             data={"platform": TEST_PLATFORM, "product_name": "Should Be Rejected"},
         )
     assert response.status_code == 401
+
+
+def test_ingest_requires_file_or_url():
+    token = get_token()
+    response = client.post(
+        "/ingest",
+        data={"platform": TEST_PLATFORM, "product_name": "Missing Image"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 400
+
+
+def test_ingest_rejects_both_file_and_url():
+    token = get_token()
+    with open(SAMPLE_IMAGE, "rb") as f:
+        response = client.post(
+            "/ingest",
+            files={"file": ("bura_sugar_label.jpeg", f, "image/jpeg")},
+            data={
+                "platform": TEST_PLATFORM,
+                "product_name": "Both Provided",
+                "image_url": "https://example.com/image.jpg",
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    assert response.status_code == 400
+
+
+def test_ingest_rejects_private_image_url():
+    token = get_token()
+    response = client.post(
+        "/ingest",
+        data={
+            "platform": TEST_PLATFORM,
+            "product_name": "SSRF Attempt",
+            "image_url": "http://169.254.169.254/latest/meta-data/",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 400

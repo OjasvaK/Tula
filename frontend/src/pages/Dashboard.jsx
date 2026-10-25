@@ -1,4 +1,5 @@
 import { useAuth } from "../context/AuthContext";
+import { IngestForm } from "../components/IngestForm";
 import { ListingsTable } from "../components/ListingsTable";
 import { ViolationChart } from "../components/ViolationChart";
 
@@ -13,6 +14,11 @@ export function Dashboard() {
           Log out
         </button>
       </header>
+
+      <section>
+        <h2>Add a Listing</h2>
+        <IngestForm />
+      </section>
 
       <section>
         <h2>Violation Trends</h2>
