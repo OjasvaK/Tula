@@ -3,7 +3,7 @@
 Running log of build progress against the roadmap in `MASTER-PROJECT-SPEC.md` Part 9.
 Updated after each phase / meaningful chunk of work. Read this first when resuming.
 
-**Last updated:** 2026-08-27
+**Last updated:** 2026-08-30
 
 ---
 
@@ -20,7 +20,7 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 | 7 | CI + deploy | Not started |
 | 8 | ML polish, more languages/rules, CSV export | Not started (ongoing/future) |
 
-**Next action:** Continue Phase 7 (CI + deploy). **Blocked on the user:** waiting for them to create a GitHub repo and share the URL (no `gh` CLI on this machine, no remote configured yet — `git remote -v` is empty). Scope agreed with user: **CI only for now** (GitHub Actions running pytest on push) — DigitalOcean/Vercel deploy deliberately deferred until the user is ready to start DigitalOcean's 60-day trial-credit clock. Don't sign up for DigitalOcean/Vercel or push a deploy without the user explicitly restarting that conversation.
+**Next action:** Continue Phase 7 (CI + deploy). Note: a large **frontend UI/UX overhaul** landed 2026-08-30, out of roadmap, between the URL-ingestion work and Phase 7 — see its own section below. **Blocked on the user:** waiting for them to create a GitHub repo and share the URL (no `gh` CLI on this machine, no remote configured yet — `git remote -v` is empty). Scope agreed with user: **CI only for now** (GitHub Actions running pytest on push) — DigitalOcean/Vercel deploy deliberately deferred until the user is ready to start DigitalOcean's 60-day trial-credit clock. Don't sign up for DigitalOcean/Vercel or push a deploy without the user explicitly restarting that conversation.
 
 ---
 
@@ -35,6 +35,40 @@ Not part of the Part 9 phase list - added between Phase 6 and Phase 7 at the use
 - Frontend: `IngestForm` component (new "Add a Listing" dashboard section) — platform/product name + a toggle between file upload and image URL. On success it calls `queryClient.invalidateQueries` on both the `listings` and `trends` query keys, so the table and chart update immediately without a manual refresh. This is also the first ingest UI at all — Phase 5 explicitly deferred one.
 - **Both Docker images had to be rebuilt** (`docker compose up -d --build backend` / `frontend`) to pick up these changes — running containers don't auto-reload from a code edit on disk; a stale container on the old image was the first thing hit when testing this (`file` field required error, from the pre-change code). Worth remembering any time code changes during/after Phase 6: rebuild before assuming a bug is real.
 - Verified end-to-end via Playwright against the dockerized stack: both ingest modes work through the real UI, dashboard updates live, zero console/network errors.
+
+---
+
+## Out-of-roadmap addition: Frontend UI/UX overhaul (2026-08-30)
+
+Between the URL-ingestion work and Phase 7, at the user's request ("website doesn't look good, few features, not easy to use"). Decisions taken with the user: public landing **+** multi-page authenticated app; **modern SaaS dashboard** look; add **Tailwind + Framer Motion + lucide-react**; backend changes allowed to be additive **plus one migration**.
+
+### Frontend (was: 1 login page + 1 cramped Dashboard; now: multi-page app)
+- **New deps** (resolved versions): `tailwindcss@4` + `@tailwindcss/vite` (v4 CSS-first — tokens live in `src/index.css` `@theme inline`, no `tailwind.config.js`), `framer-motion@13` (imports still from `framer-motion`, not `motion`), `lucide-react@1`, `clsx`. **`npm ci` needs the committed `package-lock.json`** — regenerated.
+- **Vite 8 / Rolldown gotcha:** `build.rollupOptions.output.manualChunks` **must be a function**, not the `{name: [...]}` object form (that throws `manualChunks is not a function` under Rolldown). `vite.config.js` uses the function form to split `charts` (recharts) / `motion` / `react` / `vendor`. Largest chunk is `charts` ~418 kB / 119 kB gz (recharts) — no chunk over 500 kB now, old warning gone.
+- **Routing** (`src/App.jsx`): `/` = public `LandingPage` (animated hero, how-it-works, the 6 declarations); `/login`; `/app` = `ProtectedRoute` → `AppLayout` (sidebar + sticky blur topbar + user menu + theme toggle) with children `index`→`Overview`, `listings`→`ListingsPage`, `listings/:id`→`ListingDetailPage`, `ingest`→`IngestPage`, `analytics`→`AnalyticsPage`, `help`→`HelpPage`; `*`→`NotFound`; `/dashboard`→redirect `/app`.
+- **Design system:** `src/index.css` defines semantic CSS vars (`--bg/--surface/--line/--text/--brand/...`) for light + a `.dark` override, mapped to Tailwind utilities via `@theme inline` (`bg-surface`, `text-muted`, `border-line`, etc.). Dark mode = `class` strategy; `ThemeContext` persists to `localStorage["theme"]`; `index.html` has a pre-paint inline script to avoid FOUC. Inter font via Google Fonts `<link>`.
+- **New dirs:** `src/components/ui/` (Button, Card, Badge/StatusBadge, Input/Select, Field, Spinner, Skeleton, EmptyState, Modal/ConfirmModal, StatCard, PageHeader, Accordion, SegmentedControl, ThemeToggle — barrel `index.js`), `src/components/layout/` (AppLayout, Sidebar, Topbar, navItems), `src/components/charts/` (chartTheme + ViolationBarChart, ComplianceDonut, PlatformBar, ActivityArea), `src/lib/` (cn, format, fieldMeta). Shared `src/components/FieldChecklist.jsx` used by both the ingest result and the listing detail.
+- **Recharts is not theme-var aware** — `chartTheme.js` hands it concrete hex per light/dark via `useTheme()`.
+- **`AnimatePresence mode="wait"` on the routed `<Outlet/>` broke form state** (new page not mounted until the old one finished exiting; a Playwright fill landed on nothing). Fixed: `AppLayout` now uses a **keyed enter-only fade** (`motion.div key={pathname}`, no `mode="wait"`, no exit). `AnimatePresence` is still used for the mobile drawer + toasts + modals.
+- Landing's scroll-reveal cards use `whileInView` — fine for real users; in a `fullPage` screenshot you must scroll the page first or they stay at `opacity:0`.
+- **Deleted** old `src/App.css`, `pages/Dashboard.jsx`, and `components/{LoginForm,ListingsTable,IngestForm,ViolationChart}.jsx` (folded into the new pages).
+- Auth image loading: `<img>` can't send the bearer header, so `useListingImage` fetches `/listings/{id}/image` as a blob via axios and makes an object URL (revoked on unmount).
+
+### Backend (all additive; one migration)
+- `models.py`: `Listing.deleted_at` (nullable `DateTime`) + a `results` relationship to `ComplianceResult` (`cascade="all, delete-orphan"`). Migration `a1b2c3d4e5f6_add_listing_deleted_at.py` (down_revision `31aca06d3978`) — just `add_column`. Auto-applies via the existing backend Dockerfile `CMD`.
+- `rules.py`: `rule_metadata(rules)` helper (field/description/legal_reference list).
+- `routers/listings.py` rewritten: `GET /listings` enriched (`missing_count`, `total_fields`, `compliant`, `scraped_at`; optional `platform` + `search` params; hides soft-deleted; `selectinload`, no more N+1). New: `GET /listings/export.csv` (**declared before `/{listing_id}`** so the path param doesn't swallow it — stdlib `csv` + `StreamingResponse`), `GET /listings/{id}` (`ListingDetailOut` — per-field results merged with rules.yaml descriptions + raw OCR text), `GET /listings/{id}/image` (`FileResponse`, auth-gated), `DELETE /listings/{id}` (soft delete → 204).
+- `routers/stats.py`: `GET /stats/trends` **unchanged** (still `{field: count}`). New `GET /stats/summary` (`SummaryOut`: totals, compliance_rate, most_common_violation, per-platform breakdown, dense 30-day activity series).
+- `routers/rules.py` (new): `GET /rules` → `list[RuleOut]`, auth-gated. Wired in `main.py`.
+- `schemas.py`: `ListingOut` enriched + new `FieldResultOut`, `ListingDetailOut`, `PlatformStat`, `ActivityPoint`, `SummaryOut`, `RuleOut`.
+- `tests/test_api.py`: +6 cases (detail + citations + 404, image served + 401, soft delete hides from list & 404s, summary internal consistency, `/rules` 6 entries, CSV header). **36 tests pass** (was 30). Existing tests untouched and still green (trends still a dict; `ListingOut` still has `id`).
+- CORS still `["*"]` — documented, tighten in Phase 7.
+
+### Verified
+- Backend: `pytest` 36/36 green (venv against dockerized `db`).
+- Dev stack (Option B): full Playwright walkthrough — landing → login (`admin`/`dev-password-123`) → overview stat cards → ingest a real sample image (staged progress, `Listing #N` result card + toast) → listings (search filter, pagination) → detail (auth image loads, 6-field checklist + citations, raw OCR panel) → analytics (6 recharts SVGs) → help (accordion) → theme toggle persists across reload → deep link `/app/listings/:id` survives refresh → mobile slide-over nav → delete listing (row gone). **Zero console/HTTP errors.**
+- **Full dockerized** (`docker compose up -d --build`): both images rebuilt clean; frontend `npm ci` picks up the new lockfile; nginx SPA fallback serves deep links; smoke test (landing/login/overview/analytics/deep-link-refresh) passes with zero errors.
+- Cleaned up: walkthrough test listings soft-deleted via UI; their uploaded image files removed from `backend/sample_data/images/`.
 
 ---
 

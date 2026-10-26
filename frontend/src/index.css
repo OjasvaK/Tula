@@ -1,16 +1,130 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: <html class="dark"> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens. Semantic surface/text/border vars flip between themes;
+   the brand + status ramps stay constant. Everything is exposed to Tailwind
+   via @theme inline so utilities like bg-surface / text-muted / border-line
+   resolve to the current theme's value.
+--------------------------------------------------------------------------- */
 :root {
   color-scheme: light;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f2f3f8;
+  --surface-3: #e9ebf2;
+  --line: #e3e5ee;
+  --line-strong: #cdd0dd;
+
+  --text: #171a21;
+  --text-muted: #5b6172;
+  --text-subtle: #878da0;
+
+  --brand: #5b5bd6;
+  --brand-strong: #4a48c9;
+  --brand-soft: #ececfb;
+  --on-brand: #ffffff;
+
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --info: #0284c7;
+  --info-soft: #e0f2fe;
+
+  --shadow-sm: 0 1px 2px rgba(16, 18, 27, 0.06), 0 1px 3px rgba(16, 18, 27, 0.05);
+  --shadow-md: 0 6px 16px rgba(16, 18, 27, 0.08), 0 2px 6px rgba(16, 18, 27, 0.05);
+  --shadow-lg: 0 24px 48px -12px rgba(16, 18, 27, 0.18);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --bg: #0b0d14;
+  --surface: #14171f;
+  --surface-2: #1b1f2a;
+  --surface-3: #232838;
+  --line: #262b38;
+  --line-strong: #38405a;
+
+  --text: #eef0f6;
+  --text-muted: #a3a9bd;
+  --text-subtle: #737a90;
+
+  --brand: #8b8bf2;
+  --brand-strong: #a3a3f7;
+  --brand-soft: #211f3d;
+  --on-brand: #0b0d14;
+
+  --success: #34d399;
+  --success-soft: #0c2a22;
+  --danger: #f87171;
+  --danger-soft: #33191c;
+  --warning: #fbbf24;
+  --warning-soft: #33260e;
+  --info: #38bdf8;
+  --info-soft: #10263a;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-content: var(--text);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-on-brand: var(--on-brand);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --shadow-card: var(--shadow-sm);
+  --shadow-pop: var(--shadow-md);
+  --shadow-float: var(--shadow-lg);
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  background: #f4f5f7;
-  color: #1a1d23;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 button {
@@ -18,10 +132,40 @@ button {
   cursor: pointer;
 }
 
-input {
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
-.error {
-  color: #b3261e;
+/* Thin, theme-aware scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(1.5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

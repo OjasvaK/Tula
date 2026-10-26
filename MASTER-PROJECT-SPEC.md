@@ -551,6 +551,25 @@ export const apiClient = axios.create({ baseURL: API_BASE_URL });
 
 UI polish: shadcn/ui (Tailwind-based) or Material UI, either is free/open-source.
 
+> **Status update (2026-08-30) — frontend overhauled beyond this sketch.** The
+> code blocks above are the original minimal version. The shipped frontend is a
+> multi-page SaaS-style app: a public animated **landing page** (`/`), then an
+> authenticated area (`/app`) with a sidebar + topbar layout and separate routes
+> for **Overview** (summary stat cards + charts), **Listings** (search / platform
+> filter / flagged toggle / pagination / CSV export / row delete), **Listing
+> detail** (`/app/listings/:id` — label image, per-field Rule 6 checklist with
+> statutory citations, raw OCR text), **Check a Listing** (drag-drop / URL ingest
+> with staged progress + inline result), **Analytics** (violation bar, compliance
+> donut, per-platform stacked bar, 30-day activity area), and **Help** (how it
+> works, the six declarations, FAQ, glossary). Stack additions: **Tailwind CSS v4**
+> (`@tailwindcss/vite`), **Framer Motion**, **lucide-react**, `clsx`. Light/dark
+> theme with persistence. Supporting backend additions (all additive): enriched
+> `GET /listings` (+`platform`/`search` params, counts, `compliant`,
+> `scraped_at`), `GET /listings/{id}`, `GET /listings/{id}/image` (auth-gated
+> `FileResponse`), `DELETE /listings/{id}` (soft delete — new nullable
+> `listings.deleted_at` column + migration), `GET /listings/export.csv`,
+> `GET /stats/summary`, `GET /rules`. See `MEMORY.md` for the full record.
+
 ### 6.6 Optional ML layer
 
 - **Now-worth-doing baseline:** the `is_blurry()` function in 6.1 — zero training data needed, immediately useful (routes bad images to manual review instead of a wrong verdict).

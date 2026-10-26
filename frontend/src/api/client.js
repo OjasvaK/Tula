@@ -25,3 +25,13 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+/** Pull a human-readable message out of an axios error. */
+export function errorMessage(err, fallback = "Something went wrong.") {
+  return (
+    err?.response?.data?.detail ||
+    (typeof err?.response?.data === "string" ? err.response.data : null) ||
+    err?.message ||
+    fallback
+  );
+}

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .auth import authenticate_user, create_access_token
 from .database import get_db
-from .routers import ingest, listings, stats
+from .routers import ingest, listings, rules, stats
 from .schemas import Token
 
 app = FastAPI(title="Legal Metrology Compliance Checker")
@@ -20,6 +20,7 @@ app.add_middleware(
 app.include_router(ingest.router)
 app.include_router(listings.router)
 app.include_router(stats.router)
+app.include_router(rules.router)
 
 
 @app.post("/login", response_model=Token)

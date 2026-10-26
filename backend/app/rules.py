@@ -8,6 +8,19 @@ def load_rules(path="app/rules.yaml") -> dict:
         return yaml.safe_load(f)
 
 
+def rule_metadata(rules: dict) -> list[dict]:
+    """Flatten the parsed rules.yaml into a list of {field, description,
+    legal_reference} dicts for the /rules endpoint and the listing-detail view."""
+    return [
+        {
+            "field": field,
+            "description": rule["description"],
+            "legal_reference": rule["legal_reference"],
+        }
+        for field, rule in rules.items()
+    ]
+
+
 def check_compliance(text: str, rules: dict) -> dict:
     text_lower = text.lower()
     results = {}

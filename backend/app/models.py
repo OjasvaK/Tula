@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
@@ -20,6 +20,15 @@ class Listing(Base):
     image_path = Column(String)
     raw_ocr_text = Column(String)
     scraped_at = Column(DateTime, default=_utcnow)
+    # Soft delete: rows are hidden from every listing/stats query when set,
+    # but the ComplianceResult history is preserved.
+    deleted_at = Column(DateTime, nullable=True, default=None)
+
+    results = relationship(
+        "ComplianceResult",
+        back_populates="listing",
+        cascade="all, delete-orphan",
+    )
 
 
 class ComplianceResult(Base):
@@ -30,6 +39,8 @@ class ComplianceResult(Base):
     is_present = Column(Boolean)
     matched_text = Column(String, nullable=True)
     checked_at = Column(DateTime, default=_utcnow)
+
+    listing = relationship("Listing", back_populates="results")
 
 
 class User(Base):

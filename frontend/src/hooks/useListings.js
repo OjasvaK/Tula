@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchListings } from "../api/listings";
 
-export function useListings(flaggedOnly) {
+export function useListings(params = {}) {
   return useQuery({
-    queryKey: ["listings", flaggedOnly],
-    queryFn: () => fetchListings(flaggedOnly),
+    queryKey: ["listings", params],
+    queryFn: () => fetchListings(params),
+    keepPreviousData: true,
   });
 }

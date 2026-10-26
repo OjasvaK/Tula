@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useState } from "react";
-import { login as loginRequest } from "../api/auth";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { decodeToken, login as loginRequest } from "../api/auth";
 
 const AuthContext = createContext(null);
 
@@ -17,7 +17,12 @@ export function AuthProvider({ children }) {
     setToken(null);
   }, []);
 
-  const value = { token, isAuthenticated: Boolean(token), login, logout };
+  const username = useMemo(() => decodeToken(token)?.sub || null, [token]);
+
+  const value = useMemo(
+    () => ({ token, username, isAuthenticated: Boolean(token), login, logout }),
+    [token, username, login, logout]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
