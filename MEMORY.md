@@ -20,7 +20,21 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 | 7 | CI + deploy | Not started |
 | 8 | ML polish, more languages/rules, CSV export | Not started (ongoing/future) |
 
-**Next action:** Start Phase 7 (CI + deploy) — only when explicitly told to.
+**Next action:** Continue Phase 7 (CI + deploy). **Blocked on the user:** waiting for them to create a GitHub repo and share the URL (no `gh` CLI on this machine, no remote configured yet — `git remote -v` is empty). Scope agreed with user: **CI only for now** (GitHub Actions running pytest on push) — DigitalOcean/Vercel deploy deliberately deferred until the user is ready to start DigitalOcean's 60-day trial-credit clock. Don't sign up for DigitalOcean/Vercel or push a deploy without the user explicitly restarting that conversation.
+
+---
+
+## Out-of-roadmap addition: URL-based image ingestion
+
+Not part of the Part 9 phase list - added between Phase 6 and Phase 7 at the user's request, after they asked whether images could come from the internet instead of manual upload.
+
+- `POST /ingest` now accepts `image_url` (a Form field) as an alternative to `file` — exactly one of the two must be given (400 otherwise). This is fetching one specific image resource the user points to, **not** scraping a marketplace page — crawling/parsing Amazon/Flipkart HTML remains out of scope per spec Part 2.1, untouched by this change.
+- `backend/app/image_fetch.py` — the SSRF-guard module for this. Real bug hit and fixed while testing against the actual internet (not mocks): the private-IP check initially used `ip.is_reserved`, which also flags the IPv6 NAT64 well-known prefix (`64:ff9b::/96`) that a resolver can legitimately synthesize for a plain public IPv4 host — not an SSRF target. First test against `https://httpbin.org/image/jpeg` through the dockerized backend got a false "private address" rejection; traced it to `is_reserved` via `socket.getaddrinfo`, switched to the narrower `is_private`/`is_loopback`/`is_link_local`/`is_multicast`/`is_unspecified` set. Re-verified: httpbin URL now works, and a cloud-metadata URL (`169.254.169.254`) and `http://db:5432/` (the compose-internal Postgres service, reachable by name from inside the backend container) both still correctly get rejected. **If touching this file again, don't add `is_reserved` back** — it's the one property here that produces false positives.
+- Redirects are not followed (`follow_redirects=False`) — a redirect could point at a private address even when the original URL passed the check (DNS-rebinding-style bypass).
+- `backend/tests/test_image_fetch.py` (5 cases) tests the guard logic directly with no real network calls — deliberately, so nothing here is flaky once Phase 7's CI exists. 3 more cases in `test_api.py` cover the endpoint-level validation. All 30 tests pass.
+- Frontend: `IngestForm` component (new "Add a Listing" dashboard section) — platform/product name + a toggle between file upload and image URL. On success it calls `queryClient.invalidateQueries` on both the `listings` and `trends` query keys, so the table and chart update immediately without a manual refresh. This is also the first ingest UI at all — Phase 5 explicitly deferred one.
+- **Both Docker images had to be rebuilt** (`docker compose up -d --build backend` / `frontend`) to pick up these changes — running containers don't auto-reload from a code edit on disk; a stale container on the old image was the first thing hit when testing this (`file` field required error, from the pre-change code). Worth remembering any time code changes during/after Phase 6: rebuild before assuming a bug is real.
+- Verified end-to-end via Playwright against the dockerized stack: both ingest modes work through the real UI, dashboard updates live, zero console/network errors.
 
 ---
 
