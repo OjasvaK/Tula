@@ -3,7 +3,7 @@ import { cn } from "../../lib/cn";
 import { Card } from "./Card";
 
 const ACCENTS = {
-  brand: "text-brand bg-brand-soft",
+  brand: "text-brand-fg bg-brand-soft",
   success: "text-success bg-success-soft",
   danger: "text-danger bg-danger-soft",
   warning: "text-warning bg-warning-soft",

@@ -16,7 +16,7 @@ export function Spinner({ className, label = "Loading" }) {
 export function CenteredSpinner({ label = "Loading…" }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted">
-      <Loader2 className="size-6 animate-spin text-brand" />
+      <Loader2 className="size-6 animate-spin text-brand-fg" />
       <p className="text-sm">{label}</p>
     </div>
   );

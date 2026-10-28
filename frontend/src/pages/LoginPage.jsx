@@ -55,12 +55,12 @@ export function LoginPage() {
           <h2 className="text-3xl font-extrabold leading-tight">
             Explainable Legal Metrology checks for e-commerce listings.
           </h2>
-          <p className="mt-4 max-w-md text-sm text-on-brand/80">
+          <p className="mt-4 max-w-md text-sm text-on-brand/90">
             Every flagged declaration is traced to the exact clause of LMPC Rules
             2011, Rule 6 — no black-box scoring.
           </p>
         </div>
-        <p className="relative text-xs text-on-brand/70">
+        <p className="relative text-xs text-on-brand/80">
           Internal regulator tool · access by issued account only
         </p>
       </div>

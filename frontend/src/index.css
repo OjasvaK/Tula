@@ -20,12 +20,18 @@
   --line-strong: #cdd0dd;
 
   --text: #171a21;
-  --text-muted: #5b6172;
-  --text-subtle: #878da0;
+  --text-muted: #4f5567;
+  --text-subtle: #6c7387;
 
-  --brand: #5b5bd6;
-  --brand-strong: #4a48c9;
-  --brand-soft: #ececfb;
+  /* --brand is a solid fill that ALWAYS carries white text (--on-brand),
+     in both themes. --brand-fg is the accent colour for text/icons drawn
+     ON a surface (links, active nav, badges) and is tuned per theme for
+     contrast. Never put --on-brand text on a surface, or --brand-fg text
+     on --brand. */
+  --brand: #4f46e5;
+  --brand-strong: #4338ca;
+  --brand-soft: #eef1fe;
+  --brand-fg: #4f46e5;
   --on-brand: #ffffff;
 
   --success: #16a34a;
@@ -53,13 +59,14 @@
   --line-strong: #38405a;
 
   --text: #eef0f6;
-  --text-muted: #a3a9bd;
-  --text-subtle: #737a90;
+  --text-muted: #adb3c6;
+  --text-subtle: #848ca0;
 
-  --brand: #8b8bf2;
-  --brand-strong: #a3a3f7;
-  --brand-soft: #211f3d;
-  --on-brand: #0b0d14;
+  --brand: #5b57e8;
+  --brand-strong: #736fef;
+  --brand-soft: #272554;
+  --brand-fg: #a5b4fc;
+  --on-brand: #ffffff;
 
   --success: #34d399;
   --success-soft: #0c2a22;
@@ -90,6 +97,7 @@
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
   --color-brand-soft: var(--brand-soft);
+  --color-brand-fg: var(--brand-fg);
   --color-on-brand: var(--on-brand);
 
   --color-success: var(--success);

@@ -147,7 +147,7 @@ export function ListingDetailPage() {
           className="flex w-full items-center justify-between px-5 py-4 text-left"
         >
           <span className="flex items-center gap-2 text-sm font-semibold text-content">
-            <FileText className="size-4 text-brand" />
+            <FileText className="size-4 text-brand-fg" />
             Raw OCR text
           </span>
           <ChevronDown

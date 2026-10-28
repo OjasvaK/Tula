@@ -175,7 +175,7 @@ export function ListingsPage() {
                     <td className="px-4 py-3">
                       <Link
                         to={`/app/listings/${l.id}`}
-                        className="font-medium text-content hover:text-brand"
+                        className="font-medium text-content hover:text-brand-fg"
                       >
                         {l.product_name}
                       </Link>

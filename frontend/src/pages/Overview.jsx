@@ -112,7 +112,7 @@ export function Overview() {
             action={
               <Link
                 to="/app/listings"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-brand"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-brand-fg"
               >
                 View all <ArrowRight className="size-3" />
               </Link>

@@ -122,15 +122,15 @@ export function HelpPage() {
           </p>
           <p>
             Start on{" "}
-            <Link to="/app/ingest" className="font-medium text-brand">
+            <Link to="/app/ingest" className="font-medium text-brand-fg">
               Check a Listing
             </Link>
             , then browse results under{" "}
-            <Link to="/app/listings" className="font-medium text-brand">
+            <Link to="/app/listings" className="font-medium text-brand-fg">
               Listings
             </Link>{" "}
             and see aggregate trends under{" "}
-            <Link to="/app/analytics" className="font-medium text-brand">
+            <Link to="/app/analytics" className="font-medium text-brand-fg">
               Analytics
             </Link>
             .
@@ -144,7 +144,7 @@ export function HelpPage() {
           <ol className="space-y-4">
             {PIPELINE.map(([n, title, body]) => (
               <li key={n} className="flex gap-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-xs font-bold text-brand">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-xs font-bold text-brand-fg">
                   {n}
                 </span>
                 <div>
@@ -159,7 +159,7 @@ export function HelpPage() {
 
       <section>
         <div className="mb-3 flex items-center gap-2">
-          <ScrollText className="size-4 text-brand" />
+          <ScrollText className="size-4 text-brand-fg" />
           <h2 className="text-sm font-semibold text-content">
             The six declarations
           </h2>
@@ -169,7 +169,7 @@ export function HelpPage() {
 
       <section>
         <div className="mb-3 flex items-center gap-2">
-          <HelpCircle className="size-4 text-brand" />
+          <HelpCircle className="size-4 text-brand-fg" />
           <h2 className="text-sm font-semibold text-content">FAQ</h2>
         </div>
         <Accordion

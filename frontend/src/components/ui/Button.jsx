@@ -9,7 +9,7 @@ const VARIANTS = {
     "bg-surface text-content border border-line-strong hover:bg-surface-2",
   ghost: "bg-transparent text-muted hover:bg-surface-2 hover:text-content",
   danger: "bg-danger text-white hover:brightness-95",
-  subtle: "bg-brand-soft text-brand hover:brightness-95 dark:hover:brightness-110",
+  subtle: "bg-brand-soft text-brand-fg hover:brightness-95 dark:hover:brightness-110",
 };
 
 const SIZES = {

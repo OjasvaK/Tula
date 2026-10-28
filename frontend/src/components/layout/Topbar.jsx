@@ -36,7 +36,7 @@ export function Topbar({ title, onOpenSidebar }) {
           onClick={() => setMenuOpen((v) => !v)}
           className="flex items-center gap-2 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm text-content"
         >
-          <span className="flex size-6 items-center justify-center rounded-full bg-brand-soft text-brand">
+          <span className="flex size-6 items-center justify-center rounded-full bg-brand-soft text-brand-fg">
             <User className="size-3.5" />
           </span>
           <span className="hidden max-w-[10rem] truncate sm:block">

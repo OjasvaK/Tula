@@ -6,7 +6,7 @@ const TONES = {
   danger: "bg-danger-soft text-danger",
   warning: "bg-warning-soft text-warning",
   info: "bg-info-soft text-info",
-  brand: "bg-brand-soft text-brand",
+  brand: "bg-brand-soft text-brand-fg",
 };
 
 export function Badge({ tone = "neutral", className, children }) {

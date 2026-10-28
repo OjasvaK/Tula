@@ -7,27 +7,27 @@ export function useChartTheme() {
   return isDark
     ? {
         grid: "#262b38",
-        axis: "#737a90",
-        text: "#a3a9bd",
+        axis: "#848ca0",
+        text: "#adb3c6",
         tooltipBg: "#14171f",
         tooltipBorder: "#262b38",
-        brand: "#8b8bf2",
+        brand: "#818cf8",
         danger: "#f87171",
         success: "#34d399",
         warning: "#fbbf24",
-        series: ["#8b8bf2", "#34d399", "#fbbf24", "#f87171", "#38bdf8", "#c084fc"],
+        series: ["#818cf8", "#34d399", "#fbbf24", "#f87171", "#38bdf8", "#c084fc"],
       }
     : {
         grid: "#e3e5ee",
-        axis: "#878da0",
-        text: "#5b6172",
+        axis: "#6c7387",
+        text: "#4f5567",
         tooltipBg: "#ffffff",
         tooltipBorder: "#e3e5ee",
-        brand: "#5b5bd6",
+        brand: "#4f46e5",
         danger: "#dc2626",
         success: "#16a34a",
         warning: "#d97706",
-        series: ["#5b5bd6", "#16a34a", "#d97706", "#dc2626", "#0284c7", "#9333ea"],
+        series: ["#4f46e5", "#16a34a", "#d97706", "#dc2626", "#0284c7", "#9333ea"],
       };
 }
 

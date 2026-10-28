@@ -108,7 +108,7 @@ export function LandingPage() {
               className="mt-4 text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl"
             >
               Catch non-compliant e-commerce listings{" "}
-              <span className="text-brand">before shoppers do.</span>
+              <span className="text-brand-fg">before shoppers do.</span>
             </motion.h1>
             <motion.p
               variants={fade}
@@ -204,7 +204,7 @@ export function LandingPage() {
               viewport={{ once: true, margin: "-80px" }}
               className="rounded-2xl border border-line bg-surface p-6"
             >
-              <div className="flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand">
+              <div className="flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand-fg">
                 <s.icon className="size-5" />
               </div>
               <h3 className="mt-4 font-semibold">{s.title}</h3>
@@ -217,7 +217,7 @@ export function LandingPage() {
       {/* What it checks */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="flex items-center gap-2">
-          <ScrollText className="size-5 text-brand" />
+          <ScrollText className="size-5 text-brand-fg" />
           <h2 className="text-2xl font-bold sm:text-3xl">
             The six mandatory declarations
           </h2>
@@ -241,10 +241,10 @@ export function LandingPage() {
                 className="rounded-2xl border border-line bg-surface p-5"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-surface-2 text-brand">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-surface-2 text-brand-fg">
                     <Icon className="size-5" />
                   </div>
-                  <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
+                  <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-fg">
                     {CITATIONS[field]}
                   </span>
                 </div>
@@ -259,7 +259,7 @@ export function LandingPage() {
       {/* CTA strip */}
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <div className="flex flex-col items-center gap-4 rounded-3xl border border-line bg-surface px-6 py-12 text-center">
-          <Gauge className="size-8 text-brand" />
+          <Gauge className="size-8 text-brand-fg" />
           <h2 className="text-2xl font-bold">Ready to run a check?</h2>
           <p className="max-w-md text-sm text-muted">
             This is an internal regulator tool — access is by issued account only.

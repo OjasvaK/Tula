@@ -20,7 +20,7 @@ export function Accordion({ items, defaultOpen = null, className }) {
               onClick={() => setOpen(isOpen ? null : i)}
             >
               <span className="flex items-center gap-3 text-sm font-semibold text-content">
-                {item.icon && <item.icon className="size-4 text-brand" />}
+                {item.icon && <item.icon className="size-4 text-brand-fg" />}
                 {item.title}
               </span>
               <ChevronDown
