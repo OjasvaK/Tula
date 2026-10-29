@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend-tests:
+    name: Backend tests (pytest)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      db:
+        image: postgres:16
+        env:
+          POSTGRES_USER: compliance
+          POSTGRES_PASSWORD: compliance
+          POSTGRES_DB: compliance_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U compliance -d compliance_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Matches the Postgres service above; same shape as docker-compose.yml.
+      DATABASE_URL: postgresql://compliance:compliance@localhost:5432/compliance_db
+      # Tests only need *a* key; not a real secret.
+      SECRET_KEY: ci-test-secret
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tesseract
+        # pytesseract shells out to the `tesseract` binary (see backend/Dockerfile).
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends tesseract-ocr
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Cache EasyOCR models
+        # EasyOCR downloads its detection/recognition models on first use.
+        # They never change, so a static key is fine.
+        uses: actions/cache@v4
+        with:
+          path: ~/.EasyOCR
+          key: easyocr-models-v1
+
+      - name: Install dependencies
+        # CPU-only torch first, from PyTorch's own index, so pip doesn't pull the
+        # multi-GB CUDA build when it resolves easyocr's deps (see backend/Dockerfile).
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Apply database migrations
+        run: alembic upgrade head
+
+      - name: Run tests
+        run: python -m pytest tests/ -v
