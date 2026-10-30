@@ -3,7 +3,7 @@
 Running log of build progress against the roadmap in `MASTER-PROJECT-SPEC.md` Part 9.
 Updated after each phase / meaningful chunk of work. Read this first when resuming.
 
-**Last updated:** 2026-08-30
+**Last updated:** 2026-09-08
 
 ---
 
@@ -17,10 +17,29 @@ Updated after each phase / meaningful chunk of work. Read this first when resumi
 | 4 | Backend API + auth | ✅ Done |
 | 5 | Frontend dashboard | ✅ Done |
 | 6 | Dockerize everything | ✅ Done |
-| 7 | CI + deploy | Not started |
+| 7 | CI + deploy | 🟡 CI done; deploy deferred |
 | 8 | ML polish, more languages/rules, CSV export | Not started (ongoing/future) |
 
-**Next action:** Continue Phase 7 (CI + deploy). Note: a large **frontend UI/UX overhaul** landed 2026-08-30, out of roadmap, between the URL-ingestion work and Phase 7 — see its own section below. **Blocked on the user:** waiting for them to create a GitHub repo and share the URL (no `gh` CLI on this machine, no remote configured yet — `git remote -v` is empty). Scope agreed with user: **CI only for now** (GitHub Actions running pytest on push) — DigitalOcean/Vercel deploy deliberately deferred until the user is ready to start DigitalOcean's 60-day trial-credit clock. Don't sign up for DigitalOcean/Vercel or push a deploy without the user explicitly restarting that conversation.
+**Next action:** Phase 7's **CI half is done and green** (see its section below). Remaining Phase 7 work = **deploy** (DigitalOcean backend + Vercel frontend), still deliberately deferred until the user is ready to start DigitalOcean's 60-day trial-credit clock. Don't sign up for DigitalOcean/Vercel or push a deploy without the user explicitly restarting that conversation. A large **frontend UI/UX overhaul** landed 2026-08-30, out of roadmap — see its own section below.
+
+---
+
+## Phase 7 (part 1) — CI via GitHub Actions (2026-09-08)
+
+Deploy is still out of scope (see Next action). This is CI only.
+
+- **Remote:** `origin` = `https://github.com/OjasvaK/Automated-Legal-Metrology-Compliance-Checker-for-E-Commerce-Listings.git` (created by the user, was empty). First push done.
+- **Default branch renamed `master` → `main`** locally and pushed as `main`. `git config user.name` here is `ojasvakoolwal-dev`, email `ojasvakoolwal@gmail.com`.
+- **Push was rejected first time — `GH007: Your push would publish a private email address`.** The user's GitHub account had "Block command line pushes that expose my email" on. History-rewrite fixes (`git filter-branch`, `git rebase --root --exec`) are **blocked by Claude Code's safety classifier** — can't run them even with user approval. Resolution: user unchecked that setting in github.com/settings/emails; `ojasvakoolwal@gmail.com` is now visible in commit metadata on the public repo, by their choice. If this recurs, the non-rewrite path is that toggle; the rewrite path needs the user to run it themselves via `!`.
+- **`.github/workflows/ci.yml`** — one job, `backend-tests`, on `ubuntu-latest`, triggers on **every push + every PR** (no branch filter). Steps:
+  - Postgres 16 service container, same creds as `docker-compose.yml` (`compliance`/`compliance`/`compliance_db`); `DATABASE_URL` + a throwaway `SECRET_KEY` set as job `env`.
+  - `apt-get install tesseract-ocr` (pytesseract needs the binary).
+  - `actions/setup-python@v5` with `python-version: "3.14"`, `cache: pip`, `cache-dependency-path: backend/requirements.txt`.
+  - `actions/cache@v4` on `~/.EasyOCR` (key `easyocr-models-v1`, static — models never change). First run was a cache miss; EasyOCR downloaded models during the test step and the cache saved for later runs.
+  - Deps: `pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu` **first**, then `pip install -r requirements.txt` — same CPU-only-torch reasoning as the Dockerfile.
+  - `alembic upgrade head` (creates the schema; `test_api.py` talks to real Postgres via `SessionLocal()` and assumes tables exist), then `python -m pytest tests/ -v`.
+  - `defaults.run.working-directory: backend`.
+- **First run: green in ~2m14s** (run id 34156018529). Install-deps 51s, tests 42s (incl. first-time EasyOCR model download), all 36 tests pass against real Postgres + real EasyOCR + real Tesseract on the runner. No `gh` CLI here — checked status via `curl https://api.github.com/repos/.../actions/runs`.
 
 ---
 
