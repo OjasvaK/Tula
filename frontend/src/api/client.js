@@ -17,9 +17,11 @@ apiClient.interceptors.response.use(
   (error) => {
     const isLoginRequest = error.config?.url === "/login";
     if (error.response?.status === 401 && !isLoginRequest) {
+      // No sign-in screen: dropping the token and reloading /app lets
+      // AuthProvider's auto-login silently re-authenticate.
       localStorage.removeItem("access_token");
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+      if (window.location.pathname.startsWith("/app")) {
+        window.location.reload();
       }
     }
     return Promise.reject(error);

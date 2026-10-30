@@ -1,12 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/layout/AppLayout";
 import { LandingPage } from "./pages/LandingPage";
-import { LoginPage } from "./pages/LoginPage";
 import { Overview } from "./pages/Overview";
 import { ListingsPage } from "./pages/ListingsPage";
 import { ListingDetailPage } from "./pages/ListingDetailPage";
@@ -24,13 +23,12 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+      <MotionConfig reducedMotion="user">
         <AuthProvider>
           <ToastProvider>
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
 
                 <Route
                   path="/app"
@@ -54,7 +52,7 @@ function App() {
             </BrowserRouter>
           </ToastProvider>
         </AuthProvider>
-      </ThemeProvider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }
