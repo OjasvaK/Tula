@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from .auth import authenticate_user, create_access_token
+from .config import ALLOWED_ORIGINS
 from .database import get_db
 from .routers import ingest, listings, rules, stats
 from .schemas import Token
@@ -12,7 +13,7 @@ app = FastAPI(title="Legal Metrology Compliance Checker")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten to the deployed frontend URL in Phase 7
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )

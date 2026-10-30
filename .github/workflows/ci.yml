@@ -30,7 +30,7 @@ jobs:
 
     env:
       # Matches the Postgres service above; same shape as docker-compose.yml.
-      DATABASE_URL: postgresql://compliance:compliance@localhost:5432/compliance_db
+      DATABASE_URL: postgresql+psycopg2://compliance:compliance@localhost:5432/compliance_db
       # Tests only need *a* key; not a real secret.
       SECRET_KEY: ci-test-secret
 

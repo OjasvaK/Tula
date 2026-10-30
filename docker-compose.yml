@@ -19,9 +19,10 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://compliance:compliance@db:5432/compliance_db
+      DATABASE_URL: postgresql+psycopg2://compliance:compliance@db:5432/compliance_db
       # dev-only default; override with a real secret for any real deployment.
       SECRET_KEY: dev-secret-change-in-production
+      ALLOWED_ORIGINS: http://localhost:5173
     ports: ["8000:8000"]
     volumes:
       - backend_uploads:/app/sample_data/images
