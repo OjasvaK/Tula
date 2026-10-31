@@ -1,179 +1,251 @@
 @import "tailwindcss";
 
-/* Class-based dark mode: <html class="dark"> */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* ---------------------------------------------------------------------------
-   Design tokens. Semantic surface/text/border vars flip between themes;
-   the brand + status ramps stay constant. Everything is exposed to Tailwind
-   via @theme inline so utilities like bg-surface / text-muted / border-line
-   resolve to the current theme's value.
+   Tula — the definitive stamp sheet.
+   Cool security-paper ground, intaglio ink, a definitive series of stamp
+   inks, carmine reserved for overprints. One light world: the use scene is a
+   desk in daylight, so there is no dark variant.
 --------------------------------------------------------------------------- */
 :root {
   color-scheme: light;
 
-  --bg: #f6f7fb;
-  --surface: #ffffff;
-  --surface-2: #f2f3f8;
-  --surface-3: #e9ebf2;
-  --line: #e3e5ee;
-  --line-strong: #cdd0dd;
+  --paper: #f3f5f6;        /* landing ground: security paper */
+  --frame: #edf1f4;        /* app chrome: the sheet's selvedge */
+  --sheet: #ffffff;        /* the working sheet */
+  --stamp-paper: #ffffff;  /* the paper inside a stamp */
+  --gutter: #e3e9ee;       /* the sheet between stamps: perforations show it */
+  --raised: #f6f8f9;
+  --active: #e3e9ee;
 
-  --text: #171a21;
-  --text-muted: #4f5567;
-  --text-subtle: #6c7387;
+  --border: #e2e7eb;
+  --rule: #edf0f3;
+  --control: #c5ced6;
 
-  /* --brand is a solid fill that ALWAYS carries white text (--on-brand),
-     in both themes. --brand-fg is the accent colour for text/icons drawn
-     ON a surface (links, active nav, badges) and is tuned per theme for
-     contrast. Never put --on-brand text on a surface, or --brand-fg text
-     on --brand. */
-  --brand: #4f46e5;
-  --brand-strong: #4338ca;
-  --brand-soft: #eef1fe;
-  --brand-fg: #4f46e5;
-  --on-brand: #ffffff;
+  --ink: #15233c;
+  --muted: #475468;
+  --faint: #5b6778;
 
-  --success: #16a34a;
-  --success-soft: #dcfce7;
-  --danger: #dc2626;
-  --danger-soft: #fee2e2;
-  --warning: #d97706;
-  --warning-soft: #fef3c7;
-  --info: #0284c7;
-  --info-soft: #e0f2fe;
+  --blue: #1f56a3;         /* stamp blue: brand, primary data, the action */
+  --blue-strong: #17447f;
+  --blue-soft: #e4ecf7;
+  --green: #1f6b4e;
+  --sepia: #7a4a1d;
+  --slate: #3d5566;
+  --carmine: #b0173f;      /* overprints only */
+  --postmark: #23272f;
 
-  --shadow-sm: 0 1px 2px rgba(16, 18, 27, 0.06), 0 1px 3px rgba(16, 18, 27, 0.05);
-  --shadow-md: 0 6px 16px rgba(16, 18, 27, 0.08), 0 2px 6px rgba(16, 18, 27, 0.05);
-  --shadow-lg: 0 24px 48px -12px rgba(16, 18, 27, 0.18);
-}
+  --positive: #1f6b4e;  --pill-positive-bg: #e1f1e9;  --pill-positive-ink: #0f3d2c;
+  --negative: #b0173f;  --pill-negative-bg: #fbe8ed;  --pill-negative-ink: #7a0f2b;
+  --pill-warning-bg: #fff7e6;  --pill-warning-ink: #8a4b06;
 
-.dark {
-  color-scheme: dark;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
-  --bg: #0b0d14;
-  --surface: #14171f;
-  --surface-2: #1b1f2a;
-  --surface-3: #232838;
-  --line: #262b38;
-  --line-strong: #38405a;
-
-  --text: #eef0f6;
-  --text-muted: #adb3c6;
-  --text-subtle: #848ca0;
-
-  --brand: #5b57e8;
-  --brand-strong: #736fef;
-  --brand-soft: #272554;
-  --brand-fg: #a5b4fc;
-  --on-brand: #ffffff;
-
-  --success: #34d399;
-  --success-soft: #0c2a22;
-  --danger: #f87171;
-  --danger-soft: #33191c;
-  --warning: #fbbf24;
-  --warning-soft: #33260e;
-  --info: #38bdf8;
-  --info-soft: #10263a;
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+  --cancel-angle: -12deg;  /* every postmark and overprint strikes at this angle */
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-surface-3: var(--surface-3);
-  --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
+  --color-paper: var(--paper);
+  --color-frame: var(--frame);
+  --color-sheet: var(--sheet);
+  --color-stamp-paper: var(--stamp-paper);
+  --color-gutter: var(--gutter);
+  --color-raised: var(--raised);
+  --color-active: var(--active);
+  --color-border: var(--border);
+  --color-rule: var(--rule);
+  --color-control: var(--control);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-blue: var(--blue);
+  --color-blue-strong: var(--blue-strong);
+  --color-blue-soft: var(--blue-soft);
+  --color-green: var(--green);
+  --color-sepia: var(--sepia);
+  --color-slate: var(--slate);
+  --color-carmine: var(--carmine);
+  --color-postmark: var(--postmark);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-pill-positive-bg: var(--pill-positive-bg);
+  --color-pill-positive-ink: var(--pill-positive-ink);
+  --color-pill-negative-bg: var(--pill-negative-bg);
+  --color-pill-negative-ink: var(--pill-negative-ink);
+  --color-pill-warning-bg: var(--pill-warning-bg);
+  --color-pill-warning-ink: var(--pill-warning-ink);
 
-  --color-content: var(--text);
-  --color-muted: var(--text-muted);
-  --color-subtle: var(--text-subtle);
+  --font-sans: "Mukta", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Rozha One", "Mukta", Georgia, serif;
+  /* taste-skill-ignore: monospace is used only inside <pre><code> for raw OCR output */
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  --color-brand: var(--brand);
-  --color-brand-strong: var(--brand-strong);
-  --color-brand-soft: var(--brand-soft);
-  --color-brand-fg: var(--brand-fg);
-  --color-on-brand: var(--on-brand);
-
-  --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
-  --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
-  --color-warning: var(--warning);
-  --color-warning-soft: var(--warning-soft);
-  --color-info: var(--info);
-  --color-info-soft: var(--info-soft);
-
-  --shadow-card: var(--shadow-sm);
-  --shadow-pop: var(--shadow-md);
-  --shadow-float: var(--shadow-lg);
-
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease-out: var(--ease-out);
 }
 
-* {
-  box-sizing: border-box;
+/* Element defaults live in the base layer so Tailwind utilities always win. */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /* Browser surfaces carry the world too. */
+  ::selection {
+    background: var(--blue);
+    color: #ffffff;
+  }
+  input,
+  textarea {
+    caret-color: var(--blue);
+  }
+  :focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+  a {
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--control) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--control);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
 }
 
-html {
-  scroll-behavior: smooth;
+.num,
+.tabular {
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01";
-  -webkit-font-smoothing: antialiased;
-  transition: background-color 0.2s ease, color 0.2s ease;
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
 }
 
-button {
-  font-family: inherit;
-  cursor: pointer;
+/* ── Stamp material ─────────────────────────────────────────────────────── */
+
+/*
+ * Perforated edge: holes of radius --r punched on a 3r pitch, centred on the
+ * paper's edge; a solid rectangle keeps the middle whole. The padding of a
+ * perforated element must be at least 2r. These gradients are an alpha mask
+ * that cuts the shape, not a colour fill.
+ */
+.perforated {
+  --r: 5px;
+  /* taste-skill-ignore: mask shape, not a fill */
+  -webkit-mask:
+    radial-gradient(var(--r), #0000 98%, #000) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) / calc(3 * var(--r)) calc(3 * var(--r)), /* taste-skill-ignore */
+    linear-gradient(#000 0 0) 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r)) no-repeat; /* taste-skill-ignore */
+  /* taste-skill-ignore: mask shape, not a fill */
+  mask:
+    radial-gradient(var(--r), #0000 98%, #000) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) / calc(3 * var(--r)) calc(3 * var(--r)), /* taste-skill-ignore */
+    linear-gradient(#000 0 0) 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r)) no-repeat; /* taste-skill-ignore */
+}
+/* The app's work sheet: perforated on desktop, where the frame shows through. */
+@media (min-width: 1024px) {
+  .perforated-lg {
+    --r: 4px;
+    -webkit-mask: radial-gradient(var(--r), #0000 98%, #000) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) / calc(3 * var(--r)) calc(3 * var(--r)), linear-gradient(#000 0 0) 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r)) no-repeat; /* taste-skill-ignore */
+    mask: radial-gradient(var(--r), #0000 98%, #000) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) / calc(3 * var(--r)) calc(3 * var(--r)), linear-gradient(#000 0 0) 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r)) no-repeat; /* taste-skill-ignore */
+  }
+}
+.perforated-md {
+  --r: 4px;
+}
+.perforated-sm {
+  --r: 3px;
+}
+.perforated-xs {
+  --r: 1.6px;
 }
 
-input,
-select,
-textarea {
-  font-family: inherit;
+
+/* Struck marks share one angle. */
+.cancel {
+  transform: rotate(var(--cancel-angle));
 }
 
-/* Thin, theme-aware scrollbars */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
+@keyframes strike {
+  0% { opacity: 0; transform: rotate(var(--cancel-angle)) scale(1.18); }
+  60% { opacity: 0.92; }
+  100% { opacity: 0.88; transform: rotate(var(--cancel-angle)) scale(1); }
 }
-*::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+@keyframes overprint {
+  0% { opacity: 0; transform: rotate(var(--cancel-angle)) scale(1.12); }
+  100% { opacity: 1; transform: rotate(var(--cancel-angle)) scale(1); }
 }
-*::-webkit-scrollbar-thumb {
-  background: var(--line-strong);
-  border-radius: 999px;
-  border: 3px solid transparent;
-  background-clip: content-box;
+@keyframes line-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-18px) rotate(1.5deg); }
+.anim-strike {
+  animation: strike 260ms var(--ease-out) both;
+}
+.anim-overprint {
+  animation: overprint 240ms var(--ease-out) both;
+}
+.anim-line-in {
+  animation: line-in 220ms var(--ease-out) both;
+}
+
+/* Press feedback for every pressable. */
+.press {
+  transition: transform 140ms var(--ease-out), background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+.press:active {
+  transform: scale(0.97);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
+  html {
+    scroll-behavior: auto;
+  }
+  .anim-strike,
+  .anim-overprint,
+  .anim-line-in {
+    animation-duration: 1ms;
+    animation-delay: 0ms !important;
+  }
+  .press:active {
+    transform: none;
   }
 }
