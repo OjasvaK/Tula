@@ -2,11 +2,7 @@ export function formatDate(value) {
   if (!value) return "—";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
 export function formatDateTime(value) {
@@ -22,18 +18,27 @@ export function formatDateTime(value) {
   });
 }
 
+/** ISO date for columns that are compared row against row. */
+export function formatISODate(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
 export function formatPercent(fraction, digits = 0) {
   if (fraction == null || Number.isNaN(fraction)) return "—";
   return `${(fraction * 100).toFixed(digits)}%`;
 }
 
 const FIELD_LABELS = {
-  mrp: "Maximum Retail Price",
-  net_quantity: "Net Quantity",
-  country_of_origin: "Country of Origin",
-  consumer_care: "Consumer Care Details",
-  manufacturer_address: "Manufacturer / Packer Address",
-  month_year: "Month & Year of Manufacture",
+  mrp: "Maximum retail price",
+  net_quantity: "Net quantity",
+  country_of_origin: "Country of origin",
+  consumer_care: "Consumer care",
+  manufacturer_address: "Manufacturer address",
+  month_year: "Month and year",
 };
 
 export function fieldLabel(field) {
