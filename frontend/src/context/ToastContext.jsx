@@ -18,9 +18,9 @@ const ICONS = {
 };
 
 const ACCENT = {
-  success: "text-success",
-  error: "text-danger",
-  info: "text-info",
+  success: "text-positive",
+  error: "text-negative",
+  info: "text-blue",
 };
 
 export function ToastProvider({ children }) {
@@ -67,13 +67,13 @@ export function ToastProvider({ children }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-line bg-surface px-4 py-3 shadow-pop"
+                className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-[8px] border border-border bg-sheet px-4 py-3 shadow-[0_8px_24px_rgba(21,35,60,0.12)]"
               >
                 <Icon className={`mt-0.5 size-5 shrink-0 ${ACCENT[t.type]}`} />
-                <p className="flex-1 text-sm text-content">{t.message}</p>
+                <p className="m-0 flex-1 text-[15px] text-ink">{t.message}</p>
                 <button
                   onClick={() => dismiss(t.id)}
-                  className="text-subtle transition-colors hover:text-content"
+                  className="text-faint transition-colors hover:text-ink"
                   aria-label="Dismiss notification"
                 >
                   <X className="size-4" />

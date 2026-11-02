@@ -1,19 +1,18 @@
 import { cn } from "../../lib/cn";
 
 const TONES = {
-  neutral: "bg-surface-3 text-muted",
-  success: "bg-success-soft text-success",
-  danger: "bg-danger-soft text-danger",
-  warning: "bg-warning-soft text-warning",
-  info: "bg-info-soft text-info",
-  brand: "bg-brand-soft text-brand-fg",
+  neutral: "bg-active text-muted",
+  positive: "bg-pill-positive-bg text-pill-positive-ink",
+  negative: "bg-pill-negative-bg text-pill-negative-ink",
+  warning: "bg-pill-warning-bg text-pill-warning-ink",
+  brand: "bg-blue-soft text-blue-strong",
 };
 
 export function Badge({ tone = "neutral", className, children }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+        "inline-flex h-[22px] flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-[13px] font-medium leading-none",
         TONES[tone],
         className
       )}
@@ -25,13 +24,7 @@ export function Badge({ tone = "neutral", className, children }) {
 
 export function StatusBadge({ compliant }) {
   return (
-    <Badge tone={compliant ? "success" : "danger"}>
-      <span
-        className={cn(
-          "size-1.5 rounded-full",
-          compliant ? "bg-success" : "bg-danger"
-        )}
-      />
+    <Badge tone={compliant ? "positive" : "negative"}>
       {compliant ? "Compliant" : "Flagged"}
     </Badge>
   );

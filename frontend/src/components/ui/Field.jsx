@@ -1,20 +1,32 @@
+import { useId, cloneElement, isValidElement } from "react";
 import { cn } from "../../lib/cn";
 
+/** Label above the control; a hint or error is tied to it with aria-describedby. */
 export function Field({ label, hint, error, required, className, children }) {
+  const id = useId();
+  const noteId = `${id}-note`;
+  const control = isValidElement(children)
+    ? cloneElement(children, {
+        id: children.props.id || id,
+        "aria-describedby": hint || error ? noteId : undefined,
+        "aria-invalid": error ? true : undefined,
+      })
+    : children;
+
   return (
-    <label className={cn("flex flex-col gap-1.5", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       {label && (
-        <span className="text-xs font-semibold text-muted">
+        <label htmlFor={isValidElement(children) ? children.props.id || id : undefined} className="text-[14px] font-medium text-ink">
           {label}
-          {required && <span className="ml-0.5 text-danger">*</span>}
-        </span>
+          {required && <span className="sr-only"> (required)</span>}
+        </label>
       )}
-      {children}
+      {control}
       {error ? (
-        <span className="text-xs text-danger">{error}</span>
+        <span id={noteId} className="text-[13px] text-negative">{error}</span>
       ) : hint ? (
-        <span className="text-xs text-subtle">{hint}</span>
+        <span id={noteId} className="text-[13px] text-muted">{hint}</span>
       ) : null}
-    </label>
+    </div>
   );
 }

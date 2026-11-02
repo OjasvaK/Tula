@@ -1,41 +1,29 @@
-import { motion } from "framer-motion";
-import { useId } from "react";
 import { cn } from "../../lib/cn";
 
-export function SegmentedControl({ options, value, onChange, className }) {
-  const layoutId = useId();
+/** A segmented track as wide as its options; the active option is a white pill. */
+export function SegmentedControl({ options, value, onChange, label, className }) {
   return (
     <div
-      role="tablist"
-      className={cn(
-        "inline-flex rounded-lg border border-line bg-surface-2 p-1",
-        className
-      )}
+      role="radiogroup"
+      aria-label={label}
+      className={cn("inline-flex h-10 items-center gap-1 rounded-[8px] bg-active p-1", className)}
     >
       {options.map((opt) => {
         const active = opt.value === value;
         return (
           <button
             key={opt.value}
-            role="tab"
-            aria-selected={active}
+            type="button"
+            role="radio"
+            aria-checked={active}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "relative rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
-              active ? "text-content" : "text-muted hover:text-content"
+              "press flex h-8 items-center gap-1.5 rounded-[6px] px-3 text-[14px] font-medium",
+              active ? "bg-sheet text-ink" : "text-muted hover:text-ink"
             )}
           >
-            {active && (
-              <motion.span
-                layoutId={layoutId}
-                className="absolute inset-0 rounded-md bg-surface shadow-card"
-                transition={{ type: "spring", stiffness: 400, damping: 32 }}
-              />
-            )}
-            <span className="relative flex items-center gap-1.5">
-              {opt.icon && <opt.icon className="size-3.5" />}
-              {opt.label}
-            </span>
+            {opt.icon && <opt.icon className="size-4" strokeWidth={1.6} aria-hidden="true" />}
+            {opt.label}
           </button>
         );
       })}

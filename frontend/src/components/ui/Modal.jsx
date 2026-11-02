@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "./Button";
@@ -15,12 +16,13 @@ export function Modal({ open, onClose, title, description, children, footer }) {
     };
   }, [open, onClose]);
 
-  return (
+  // Rendered on <body> so no ancestor mask or transform can clip the dialog.
+  return createPortal(
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-[rgba(21,35,60,0.4)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -30,7 +32,7 @@ export function Modal({ open, onClose, title, description, children, footer }) {
             role="dialog"
             aria-modal="true"
             aria-label={title}
-            className="relative w-full max-w-md rounded-2xl border border-line bg-surface shadow-float"
+            className="relative w-full max-w-md rounded-[10px] bg-sheet shadow-[0_24px_48px_-12px_rgba(21,35,60,0.28)]"
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 8 }}
@@ -38,14 +40,14 @@ export function Modal({ open, onClose, title, description, children, footer }) {
           >
             <div className="flex items-start justify-between gap-4 p-5">
               <div>
-                <h2 className="text-base font-semibold text-content">{title}</h2>
+                <h2 className="m-0 text-[18px] font-semibold text-ink">{title}</h2>
                 {description && (
-                  <p className="mt-1 text-sm text-muted">{description}</p>
+                  <p className="m-0 mt-1 text-[15px] text-muted">{description}</p>
                 )}
               </div>
               <button
                 onClick={onClose}
-                className="text-subtle transition-colors hover:text-content"
+                className="text-faint transition-colors hover:text-ink"
                 aria-label="Close dialog"
               >
                 <X className="size-5" />
@@ -53,14 +55,15 @@ export function Modal({ open, onClose, title, description, children, footer }) {
             </div>
             {children && <div className="px-5 pb-2">{children}</div>}
             {footer && (
-              <div className="flex justify-end gap-2 border-t border-line p-4">
+              <div className="flex justify-end gap-2 border-t border-rule p-4">
                 {footer}
               </div>
             )}
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
@@ -86,7 +89,7 @@ export function ConfirmModal({
             Cancel
           </Button>
           <Button
-            variant={danger ? "danger" : "primary"}
+            variant={danger ? "danger-solid" : "primary"}
             onClick={onConfirm}
             loading={loading}
           >
