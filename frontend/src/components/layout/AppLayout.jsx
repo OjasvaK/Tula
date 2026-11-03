@@ -4,16 +4,22 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { SidebarContent } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { NAV_ITEMS } from "./navItems";
+import { NAV_ITEMS, NAV_FOOT } from "./navItems";
 
 function titleForPath(pathname) {
-  if (pathname.startsWith("/app/listings/")) return "Listing Detail";
-  const match = [...NAV_ITEMS]
+  if (pathname.startsWith("/app/listings/")) return "Listing";
+  const match = [...NAV_ITEMS, ...NAV_FOOT]
     .sort((a, b) => b.to.length - a.to.length)
     .find((i) => (i.end ? pathname === i.to : pathname.startsWith(i.to)));
-  return match?.label || "Dashboard";
+  return match?.label || "Tula";
 }
 
+/*
+ * Framed sheet: the sidebar (228px) and the 48px top bar share the frame tint
+ * as one L with no rule between them; the page is a white sheet inset 8px from
+ * the window's right and bottom edges, its edge perforated like a stamp sheet. On a phone the
+ * frame falls away and the sheet becomes the screen.
+ */
 export function AppLayout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -22,41 +28,40 @@ export function AppLayout() {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  const title = titleForPath(location.pathname);
-
   return (
-    <div className="min-h-screen bg-bg lg:grid lg:grid-cols-[16rem_1fr]">
-      {/* Desktop sidebar */}
-      <aside className="hidden border-r border-line bg-surface lg:block">
+    <div className="min-h-screen bg-frame lg:grid lg:grid-cols-[228px_minmax(0,1fr)]">
+      <aside className="hidden lg:block">
         <div className="sticky top-0 h-screen">
           <SidebarContent />
         </div>
       </aside>
 
-      {/* Mobile drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-[rgba(21,35,60,0.4)]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
-              className="absolute inset-y-0 left-0 w-64 border-r border-line bg-surface"
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              aria-label="Navigation"
+              className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-frame"
+              initial={{ transform: "translateX(-100%)" }}
+              animate={{ transform: "translateX(0%)" }}
+              exit={{ transform: "translateX(-100%)" }}
+              transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
             >
               <button
+                type="button"
                 onClick={() => setMobileOpen(false)}
-                className="absolute right-3 top-4 text-subtle"
+                className="press absolute right-2 top-3 flex size-9 items-center justify-center rounded-[6px] text-muted hover:bg-active"
                 aria-label="Close navigation"
               >
-                <X className="size-5" />
+                <X className="size-5" strokeWidth={1.6} />
               </button>
               <SidebarContent onNavigate={() => setMobileOpen(false)} />
             </motion.aside>
@@ -64,20 +69,12 @@ export function AppLayout() {
         )}
       </AnimatePresence>
 
-      <div className="flex min-w-0 flex-col">
-        <Topbar title={title} onOpenSidebar={() => setMobileOpen(true)} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
-          {/* Keyed enter-only fade: the new page mounts immediately (no
-              exit hold), so navigation feels instant and form state is
-              never dropped mid-transition. */}
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+      <div className="flex min-h-screen min-w-0 flex-col">
+        <Topbar title={titleForPath(location.pathname)} onOpenSidebar={() => setMobileOpen(true)} />
+        <main className="perforated-lg flex-1 bg-sheet lg:mb-2 lg:mr-2">
+          <div className="px-4 py-5 sm:px-6 lg:py-6">
             <Outlet />
-          </motion.div>
+          </div>
         </main>
       </div>
     </div>
