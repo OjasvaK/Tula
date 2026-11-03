@@ -1,47 +1,26 @@
-import { useTheme } from "../../context/ThemeContext";
+/** Recharts cannot read CSS custom properties, so it gets the tokens as values. */
+export const chartTheme = {
+  grid: "#e2e7eb",
+  axis: "#5b6778",
+  text: "#475468",
+  ink: "#15233c",
+  tooltipBg: "#ffffff",
+  tooltipBorder: "#e2e7eb",
+  data: "#1f56a3",
+  negative: "#b0173f",
+  font: "Mukta, system-ui, sans-serif",
+};
 
-/** Recharts can't read CSS custom properties, so hand it concrete colours
- *  keyed off the current theme. */
-export function useChartTheme() {
-  const { isDark } = useTheme();
-  return isDark
-    ? {
-        grid: "#262b38",
-        axis: "#848ca0",
-        text: "#adb3c6",
-        tooltipBg: "#14171f",
-        tooltipBorder: "#262b38",
-        brand: "#818cf8",
-        danger: "#f87171",
-        success: "#34d399",
-        warning: "#fbbf24",
-        series: ["#818cf8", "#34d399", "#fbbf24", "#f87171", "#38bdf8", "#c084fc"],
-      }
-    : {
-        grid: "#e3e5ee",
-        axis: "#6c7387",
-        text: "#4f5567",
-        tooltipBg: "#ffffff",
-        tooltipBorder: "#e3e5ee",
-        brand: "#4f46e5",
-        danger: "#dc2626",
-        success: "#16a34a",
-        warning: "#d97706",
-        series: ["#4f46e5", "#16a34a", "#d97706", "#dc2626", "#0284c7", "#9333ea"],
-      };
-}
-
-export function tooltipStyle(t) {
-  return {
-    contentStyle: {
-      background: t.tooltipBg,
-      border: `1px solid ${t.tooltipBorder}`,
-      borderRadius: 12,
-      fontSize: 12,
-      color: t.text,
-      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-    },
-    labelStyle: { color: t.text, fontWeight: 600 },
-    itemStyle: { color: t.text },
-  };
-}
+export const tooltipStyle = {
+  contentStyle: {
+    background: chartTheme.tooltipBg,
+    border: `1px solid ${chartTheme.tooltipBorder}`,
+    borderRadius: 4,
+    fontSize: 13,
+    fontFamily: chartTheme.font,
+    color: chartTheme.ink,
+    boxShadow: "0 4px 14px rgba(21, 35, 60, 0.10)",
+  },
+  labelStyle: { color: chartTheme.ink, fontWeight: 600 },
+  itemStyle: { color: chartTheme.ink },
+};

@@ -1,161 +1,184 @@
 import { Link } from "react-router-dom";
-import {
-  Package,
-  Gauge,
-  Flag,
-  AlertOctagon,
-  ArrowRight,
-  ScanLine,
-} from "lucide-react";
+import { ArrowRight, ScanLine } from "lucide-react";
 import { useSummary } from "../hooks/useSummary";
 import { useTrends } from "../hooks/useTrends";
-import { useRules } from "../hooks/useRules";
 import { useListings } from "../hooks/useListings";
 import { PageHeader } from "../components/ui/PageHeader";
-import { StatCard } from "../components/ui/StatCard";
+import { KpiStrip } from "../components/ui/KpiStrip";
 import { Card, CardHeader, CardBody } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
-import { StatusBadge } from "../components/ui/Badge";
-import { ViolationBarChart } from "../components/charts/ViolationBarChart";
-import { formatDate, formatPercent, fieldLabel } from "../lib/format";
+import { StampStrip, StripKey } from "../components/stamp/StampStrip";
+import { MissingBarList } from "../components/charts/MissingBarList";
+import { errorMessage } from "../api/client";
+import { formatISODate } from "../lib/format";
+import { topGaps, joinNames } from "../lib/rules";
+
+function finding(s, trends) {
+  if (!s || s.total_listings === 0) return "No labels checked yet.";
+  if (s.flagged_count === 0) return `All ${s.total_listings} listings carry every declaration.`;
+  const lead = `${s.flagged_count} of ${s.total_listings} listings are flagged.`;
+  const { count, decls } = topGaps(trends);
+  if (!decls.length) return lead;
+  const names = decls.map((d, i) => (i === 0 ? d.name : d.name.toLowerCase()));
+  return decls.length === 1
+    ? `${lead} ${names[0]} is missing most often, on ${count} of ${s.total_listings}.`
+    : `${lead} ${joinNames(names)} are each missing on ${count} of ${s.total_listings}.`;
+}
 
 export function Overview() {
   const summary = useSummary();
   const trends = useTrends();
-  const rules = useRules();
-  const recent = useListings({});
-
+  const listings = useListings({});
   const s = summary.data;
+
+  const flagged = (listings.data || []).filter((l) => !l.compliant);
+  const shown = flagged.slice(0, 6);
+  const empty = s && s.total_listings === 0;
 
   return (
     <div>
       <PageHeader
         title="Overview"
-        description="Compliance snapshot across every listing checked."
+        description={summary.isLoading ? "Loading…" : finding(s, trends.data)}
         actions={
-          <Button as={Link} to="/app/ingest" size="sm">
-            <ScanLine className="size-4" />
-            Check a listing
+          <Button as={Link} to="/app/ingest">
+            <ScanLine className="size-4" strokeWidth={1.8} aria-hidden="true" />
+            Check a label
           </Button>
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {summary.isLoading || !s ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[110px] rounded-2xl" />
-          ))
-        ) : (
-          <>
-            <StatCard
-              index={0}
-              label="Listings checked"
-              value={s.total_listings}
-              icon={Package}
-              accent="brand"
-            />
-            <StatCard
-              index={1}
-              label="Compliance rate"
-              value={formatPercent(s.compliance_rate)}
-              hint={`${s.compliant_count} of ${s.total_listings} compliant`}
-              icon={Gauge}
-              accent="success"
-            />
-            <StatCard
-              index={2}
-              label="Flagged"
-              value={s.flagged_count}
-              hint="one or more declarations missing"
-              icon={Flag}
-              accent="danger"
-            />
-            <StatCard
-              index={3}
-              label="Top violation"
-              value={
-                s.most_common_violation
-                  ? fieldLabel(s.most_common_violation)
-                  : "—"
-              }
-              icon={AlertOctagon}
-              accent="warning"
-            />
-          </>
-        )}
-      </div>
+      {summary.isError ? (
+        <EmptyState
+          title="Couldn’t load the summary."
+          description={errorMessage(summary.error, "The API did not answer.")}
+          action={<Button variant="secondary" size="sm" onClick={() => summary.refetch()}>Retry</Button>}
+        />
+      ) : summary.isLoading || !s ? (
+        <div className="grid grid-cols-3 gap-4 rounded-[8px] border border-border p-5">
+          {[0, 1, 2].map((i) => (
+            <div key={i}>
+              <Skeleton className="h-3.5 w-24" />
+              <Skeleton className="mt-3 h-7 w-16" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <KpiStrip
+          items={[
+            {
+              label: "Flagged listings",
+              value: s.flagged_count.toLocaleString(),
+              unit: `of ${s.total_listings.toLocaleString()} checked`,
+              lead: true,
+            },
+            {
+              label: "Compliance rate",
+              value: s.total_listings ? (s.compliance_rate * 100).toFixed(1) : "—",
+              unit: s.total_listings ? "%" : undefined,
+              sub: `${s.compliant_count} carry all six declarations`,
+            },
+            (() => {
+              const { count, decls } = topGaps(trends.data);
+              return {
+                label: "Missing most often",
+                value: decls.length ? decls.map((d) => d.short).join(", ") : "—",
+                text: true,
+                sub: decls.length
+                  ? `${decls.length > 1 ? "Each on" : "On"} ${count} of ${s.total_listings} listings`
+                  : "Nothing missing yet",
+              };
+            })(),
+          ]}
+        />
+      )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-5">
-        <Card className="lg:col-span-3">
+      <div className="mt-4 grid items-start gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           <CardHeader
-            title="Most common missing declarations"
-            subtitle="Across all flagged listings"
+            title="Flagged listings"
+            subtitle={
+              flagged.length
+                ? `${flagged.length} need a seller to add a declaration`
+                : "Listings missing one or more declarations"
+            }
+            action={
+              flagged.length > 0 && (
+                <Link to="/app/listings?tab=flagged" className="inline-flex items-center gap-1 text-[14px] font-medium text-blue no-underline hover:text-blue-strong">
+                  View all <ArrowRight className="size-3.5" aria-hidden="true" />
+                </Link>
+              )
+            }
           />
           <CardBody>
-            {trends.isLoading ? (
-              <Skeleton className="h-[280px]" />
-            ) : (
-              <ViolationBarChart
-                trends={trends.data || {}}
-                rules={rules.data || []}
-                height={280}
+            {listings.isLoading ? (
+              <div className="space-y-4">
+                {[0, 1, 2].map((i) => <Skeleton key={i} className="h-4 w-full" />)}
+              </div>
+            ) : listings.isError ? (
+              <EmptyState
+                title="Couldn’t load listings."
+                description={errorMessage(listings.error)}
+                action={<Button variant="secondary" size="sm" onClick={() => listings.refetch()}>Retry</Button>}
               />
+            ) : empty ? (
+              <EmptyState
+                title="No labels checked yet."
+                description="Check a label and any missing declaration lands here with its clause."
+                action={<Button as={Link} to="/app/ingest" size="sm">Check a label</Button>}
+              />
+            ) : shown.length === 0 ? (
+              <EmptyState title="Nothing flagged." description="Every listing checked so far carries all six declarations." />
+            ) : (
+              <>
+              <table className="w-full border-collapse text-left text-[14px]">
+                <caption className="sr-only">Flagged listings, newest first</caption>
+                <thead>
+                  <tr className="text-[13px] text-muted">
+                    <th scope="col" className="pb-2 pr-4 font-normal">Product</th>
+                    <th scope="col" className="hidden pb-2 pr-4 font-normal sm:table-cell">Declarations</th>
+                    <th scope="col" className="pb-2 pr-4 text-right font-normal">Found</th>
+                    <th scope="col" className="hidden pb-2 text-right font-normal md:table-cell">Checked</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shown.map((l) => (
+                    <tr key={l.id} className="border-t border-rule hover:bg-raised">
+                      <td className="py-2.5 pr-4">
+                        <Link to={`/app/listings/${l.id}`} className="font-medium text-ink no-underline hover:text-blue">
+                          {l.product_name}
+                        </Link>
+                        <span className="block text-[13px] text-muted">{l.platform}</span>
+                      </td>
+                      <td className="hidden py-2.5 pr-4 sm:table-cell">
+                        <StampStrip missing={l.missing_fields} />
+                      </td>
+                      <td className="py-2.5 pr-4 text-right tabular">
+                        <span className="font-semibold text-ink">{l.total_fields - l.missing_count}</span>
+                        <span className="text-muted"> /{l.total_fields}</span>
+                      </td>
+                      <td className="hidden py-2.5 text-right text-muted tabular md:table-cell">{formatISODate(l.scraped_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <StripKey className="mt-3 hidden border-t border-rule pt-3 sm:flex" />
+              </>
             )}
           </CardBody>
         </Card>
 
-        <Card className="lg:col-span-2">
-          <CardHeader
-            title="Recent listings"
-            action={
-              <Link
-                to="/app/listings"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-brand-fg"
-              >
-                View all <ArrowRight className="size-3" />
-              </Link>
-            }
-          />
-          <CardBody className="p-0">
-            {recent.isLoading ? (
-              <div className="space-y-3 p-5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-10" />
-                ))}
+        <Card>
+          <CardHeader title="Missing most often" subtitle="Listings missing each declaration" />
+          <CardBody className="pt-2">
+            {trends.isLoading || !s ? (
+              <div className="space-y-4">
+                {[0, 1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-3.5 w-full" />)}
               </div>
-            ) : (recent.data || []).length === 0 ? (
-              <EmptyState
-                title="No listings yet"
-                description="Run your first check to see it here."
-                action={
-                  <Button as={Link} to="/app/ingest" size="sm">
-                    Check a listing
-                  </Button>
-                }
-              />
             ) : (
-              <ul className="divide-y divide-line">
-                {(recent.data || []).slice(0, 6).map((l) => (
-                  <li key={l.id}>
-                    <Link
-                      to={`/app/listings/${l.id}`}
-                      className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-surface-2"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-content">
-                          {l.product_name}
-                        </p>
-                        <p className="text-xs text-subtle">
-                          {l.platform} · {formatDate(l.scraped_at)}
-                        </p>
-                      </div>
-                      <StatusBadge compliant={l.compliant} />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <MissingBarList trends={trends.data || {}} total={s.total_listings} thin />
             )}
           </CardBody>
         </Card>

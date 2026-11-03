@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  Trash2,
-  ChevronDown,
-  ImageOff,
-  FileText,
-} from "lucide-react";
+import { Trash2, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useListing } from "../hooks/useListing";
 import { useListingImage } from "../hooks/useListingImage";
@@ -15,37 +9,32 @@ import { useToast } from "../context/ToastContext";
 import { errorMessage } from "../api/client";
 import { Card, CardHeader, CardBody } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
-import { CenteredSpinner } from "../components/ui/Spinner";
+import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { StatusBadge } from "../components/ui/Badge";
 import { ConfirmModal } from "../components/ui/Modal";
-import { FieldChecklist } from "../components/FieldChecklist";
+import { DeclarationSheet } from "../components/FieldChecklist";
+import { DECLARATION_BY_FIELD } from "../lib/rules";
 import { formatDateTime } from "../lib/format";
 
-function LabelImage({ id }) {
+function LabelImage({ id, name }) {
   const { url, loading, error } = useListingImage(id);
-  if (loading)
-    return (
-      <div className="flex h-64 items-center justify-center rounded-xl bg-surface-2">
-        <CenteredSpinner label="Loading image…" />
-      </div>
-    );
+  if (loading) return <Skeleton className="aspect-[3/4] w-full" />;
   if (error || !url)
     return (
-      <div className="flex h-64 flex-col items-center justify-center gap-2 rounded-xl bg-surface-2 text-subtle">
-        <ImageOff className="size-6" />
-        <p className="text-xs">Image unavailable</p>
-      </div>
+      <EmptyState title="Image unavailable." description="The stored label photo could not be loaded." />
     );
   return (
     <a href={url} target="_blank" rel="noreferrer" className="block">
-      <img
-        src={url}
-        alt="Product label"
-        className="max-h-[520px] w-full rounded-xl border border-line object-contain bg-surface-2"
-      />
+      <img src={url} alt={`Label photo for ${name}`} className="block max-h-[420px] w-full bg-raised object-contain lg:max-h-[640px]" />
     </a>
   );
+}
+
+function verdictLine(data) {
+  const missing = data.missing_fields.map((f) => DECLARATION_BY_FIELD[f]?.name.toLowerCase() || f);
+  if (missing.length === 0) return "All six declarations found.";
+  return `${6 - missing.length} of 6 found. Missing ${missing.join(", ")}.`;
 }
 
 export function ListingDetailPage() {
@@ -55,7 +44,7 @@ export function ListingDetailPage() {
   const { data, isLoading, isError, error } = useListing(id);
   const del = useDeleteListing();
   const [confirm, setConfirm] = useState(false);
-  const [showOcr, setShowOcr] = useState(false);
+  const [showOcr, setShowOcr] = useState(true);
 
   async function handleDelete() {
     try {
@@ -67,106 +56,91 @@ export function ListingDetailPage() {
     }
   }
 
-  if (isLoading) return <CenteredSpinner label="Loading listing…" />;
+  if (isLoading) {
+    return (
+      <div>
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="mt-3 h-7 w-72" />
+        <div className="mt-8 grid gap-4 lg:grid-cols-12">
+          <Skeleton className="aspect-[3/4] lg:col-span-5" />
+          <Skeleton className="h-[420px] lg:col-span-7" />
+        </div>
+      </div>
+    );
+  }
 
   if (isError) {
     return (
       <EmptyState
-        icon={FileText}
-        title="Listing not found"
+        title="Listing not found."
         description={errorMessage(error, "It may have been deleted.")}
-        action={
-          <Button as={Link} to="/app/listings" size="sm">
-            Back to listings
-          </Button>
-        }
+        action={<Button as={Link} to="/app/listings" size="sm">Back to listings</Button>}
       />
     );
   }
 
   return (
     <div>
-      <Link
-        to="/app/listings"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-content"
-      >
-        <ArrowLeft className="size-4" />
-        Listings
-      </Link>
-
       <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-content sm:text-2xl">
-              {data.product_name}
-            </h1>
+        <div className="min-w-0">
+          <nav aria-label="Breadcrumb" className="text-[14px]">
+            <Link to="/app/listings" className="text-muted no-underline hover:text-ink">Listings</Link>
+            <span className="px-1.5 text-faint" aria-hidden="true">/</span>
+          </nav>
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <h1 className="m-0 text-[24px] font-bold leading-tight text-ink">{data.product_name}</h1>
             <StatusBadge compliant={data.compliant} />
           </div>
-          <p className="mt-1 text-sm text-muted">
-            {data.platform} · checked {formatDateTime(data.scraped_at)} · listing
-            #{data.id}
+          <p className="m-0 mt-1 text-[15px] text-muted">
+            {verdictLine(data)} {data.platform} · checked {formatDateTime(data.scraped_at)} · listing{" "}
+            <span className="tabular">#{data.id}</span>
           </p>
         </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="text-danger"
-          onClick={() => setConfirm(true)}
-        >
-          <Trash2 className="size-4" />
+        <Button variant="danger" className="self-start" onClick={() => setConfirm(true)}>
+          <Trash2 className="size-4" strokeWidth={1.8} aria-hidden="true" />
           Delete
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader title="Label image" />
+      <div className="grid items-start gap-4 lg:grid-cols-12">
+        <Card className="lg:col-span-5">
+          <CardHeader title="Label photo" />
           <CardBody>
-            <LabelImage id={id} />
+            <LabelImage id={id} name={data.product_name} />
           </CardBody>
         </Card>
 
-        <Card>
-          <CardHeader
-            title="Rule 6 declaration check"
-            subtitle={
-              data.compliant
-                ? "All six declarations detected"
-                : `${data.missing_fields.length} missing`
-            }
-          />
-          <CardBody className="pt-0">
-            <FieldChecklist results={data.results} />
+        <Card className="order-first lg:order-none lg:col-span-7">
+          <CardHeader title="Rule 6 sheet" subtitle="Each declaration postmarked with its clause, or overprinted when it is missing" />
+          <CardBody>
+            <DeclarationSheet results={data.results} rawText={data.raw_ocr_text || ""} />
           </CardBody>
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <button
-          onClick={() => setShowOcr((v) => !v)}
-          className="flex w-full items-center justify-between px-5 py-4 text-left"
-        >
-          <span className="flex items-center gap-2 text-sm font-semibold text-content">
-            <FileText className="size-4 text-brand-fg" />
-            Raw OCR text
-          </span>
-          <ChevronDown
-            className={`size-4 text-subtle transition-transform ${
-              showOcr ? "rotate-180" : ""
-            }`}
-          />
-        </button>
+      <Card className="mt-4">
+        <h2 className="m-0">
+          <button
+            type="button"
+            onClick={() => setShowOcr((v) => !v)}
+            aria-expanded={showOcr}
+            className="flex w-full items-center justify-between px-5 py-4 text-left text-[16px] font-semibold text-ink"
+          >
+            Text the OCR read
+            <ChevronDown className={`size-4 text-faint transition-transform duration-200 ${showOcr ? "rotate-180" : ""}`} strokeWidth={1.6} aria-hidden="true" />
+          </button>
+        </h2>
         <AnimatePresence initial={false}>
           {showOcr && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
               className="overflow-hidden"
             >
-              <pre className="max-h-80 overflow-auto whitespace-pre-wrap border-t border-line bg-surface-2 px-5 py-4 font-mono text-xs leading-relaxed text-muted">
-                {data.raw_ocr_text || "(no text extracted)"}
+              <pre className="m-0 max-h-80 overflow-auto whitespace-pre-wrap border-t border-rule bg-raised px-5 py-4 text-[13px] leading-relaxed text-ink">
+                <code className="font-mono">{data.raw_ocr_text || "(no text extracted)"}</code>
               </pre>
             </motion.div>
           )}
@@ -178,9 +152,9 @@ export function ListingDetailPage() {
         onClose={() => setConfirm(false)}
         onConfirm={handleDelete}
         loading={del.isPending}
-        title="Delete listing?"
-        description={`“${data.product_name}” will be removed from listings and analytics.`}
-        confirmLabel="Delete"
+        title="Delete this listing?"
+        description={`“${data.product_name}” leaves the ledger and the analytics.`}
+        confirmLabel="Delete listing"
       />
     </div>
   );

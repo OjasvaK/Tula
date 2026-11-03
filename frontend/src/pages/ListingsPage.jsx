@@ -1,14 +1,6 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Search,
-  Download,
-  Trash2,
-  Eye,
-  ChevronLeft,
-  ChevronRight,
-  ListChecks,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Search, Download, Trash2, ScanLine } from "lucide-react";
 import { useListings } from "../hooks/useListings";
 import { useSummary } from "../hooks/useSummary";
 import { useDeleteListing } from "../hooks/useDeleteListing";
@@ -17,46 +9,66 @@ import { downloadListingsCsv } from "../api/listings";
 import { useToast } from "../context/ToastContext";
 import { errorMessage } from "../api/client";
 import { PageHeader } from "../components/ui/PageHeader";
-import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input, Select } from "../components/ui/Input";
 import { SkeletonRows } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
-import { StatusBadge, Badge } from "../components/ui/Badge";
+import { StatusBadge } from "../components/ui/Badge";
 import { ConfirmModal } from "../components/ui/Modal";
-import { formatDate, fieldLabel } from "../lib/format";
+import { StampStrip, StripKey } from "../components/stamp/StampStrip";
+import { formatISODate } from "../lib/format";
+import { cn } from "../lib/cn";
 
-const PAGE_SIZES = [10, 25, 50];
+const PAGE_SIZE = 25;
+const TABS = [
+  { id: "all", label: "All" },
+  { id: "flagged", label: "Flagged" },
+  { id: "compliant", label: "Compliant" },
+];
 
 export function ListingsPage() {
   const toast = useToast();
-  const [searchInput, setSearchInput] = useState("");
+  const [params, setParams] = useSearchParams();
+  const tab = TABS.some((t) => t.id === params.get("tab")) ? params.get("tab") : "all";
+  const [searchInput, setSearchInput] = useState(params.get("q") || "");
   const search = useDebounce(searchInput, 300);
   const [platform, setPlatform] = useState("");
-  const [flaggedOnly, setFlaggedOnly] = useState(false);
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [shownCount, setShownCount] = useState(PAGE_SIZE);
   const [toDelete, setToDelete] = useState(null);
   const [exporting, setExporting] = useState(false);
 
-  const params = useMemo(
-    () => ({ search, platform, flagged_only: flaggedOnly }),
-    [search, platform, flaggedOnly]
-  );
-  const { data: listings = [], isLoading, isError, error } = useListings(params);
+  useEffect(() => {
+    setSearchInput(params.get("q") || "");
+  }, [params]);
+
+  const query = useMemo(() => ({ search, platform }), [search, platform]);
+  const { data: listings = [], isLoading, isError, error, refetch } = useListings(query);
   const summary = useSummary();
   const del = useDeleteListing();
-
   const platforms = (summary.data?.platforms || []).map((p) => p.platform);
 
-  const pageCount = Math.max(1, Math.ceil(listings.length / pageSize));
-  const current = Math.min(page, pageCount - 1);
-  const rows = listings.slice(current * pageSize, current * pageSize + pageSize);
+  const counts = {
+    all: listings.length,
+    flagged: listings.filter((l) => !l.compliant).length,
+    compliant: listings.filter((l) => l.compliant).length,
+  };
+  const inTab = listings.filter((l) =>
+    tab === "flagged" ? !l.compliant : tab === "compliant" ? l.compliant : true
+  );
+  const rows = inTab.slice(0, shownCount);
+
+  function setTab(id) {
+    const next = new URLSearchParams(params);
+    if (id === "all") next.delete("tab");
+    else next.set("tab", id);
+    setParams(next, { replace: true });
+    setShownCount(PAGE_SIZE);
+  }
 
   async function handleExport() {
     setExporting(true);
     try {
-      await downloadListingsCsv({ platform, flagged_only: flaggedOnly });
+      await downloadListingsCsv({ platform, flagged_only: tab === "flagged" });
       toast.success("CSV exported.");
     } catch (err) {
       toast.error(errorMessage(err, "Export failed."));
@@ -75,228 +87,158 @@ export function ListingsPage() {
     }
   }
 
-  const resetPage = () => setPage(0);
-
   return (
     <div>
       <PageHeader
         title="Listings"
-        description="Every product label checked, with its Rule 6 status."
+        description="Every label checked, with the declarations it carries and the ones it is missing."
         actions={
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleExport}
-            loading={exporting}
-          >
-            <Download className="size-4" />
-            Export CSV
-          </Button>
+          <>
+            <Button variant="secondary" onClick={handleExport} loading={exporting}>
+              {!exporting && <Download className="size-4" strokeWidth={1.8} aria-hidden="true" />}
+              Export CSV
+            </Button>
+            <Button as={Link} to="/app/ingest">
+              <ScanLine className="size-4" strokeWidth={1.8} aria-hidden="true" />
+              Check a label
+            </Button>
+          </>
         }
       />
 
-      <Card className="overflow-hidden">
-        {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-line p-4">
-          <div className="relative min-w-[200px] flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
-            <Input
-              className="pl-9"
-              placeholder="Search product name…"
-              value={searchInput}
-              onChange={(e) => {
-                setSearchInput(e.target.value);
-                resetPage();
-              }}
-            />
-          </div>
-          <Select
-            value={platform}
-            onChange={(e) => {
-              setPlatform(e.target.value);
-              resetPage();
-            }}
-            className="w-auto min-w-[9rem]"
-          >
-            <option value="">All platforms</option>
-            {platforms.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </Select>
-          <label className="flex items-center gap-2 whitespace-nowrap text-sm text-muted">
-            <input
-              type="checkbox"
-              className="size-4 accent-[var(--brand)]"
-              checked={flaggedOnly}
-              onChange={(e) => {
-                setFlaggedOnly(e.target.checked);
-                resetPage();
-              }}
-            />
-            Flagged only
-          </label>
-        </div>
+      <div role="tablist" aria-label="Filter by status" className="flex gap-6 border-b border-border">
+        {TABS.map((t) => {
+          const active = t.id === tab;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setTab(t.id)}
+              className={cn(
+                "-mb-px border-b-2 pb-2.5 text-[15px]",
+                active ? "border-ink font-semibold text-ink" : "border-transparent text-muted hover:text-ink"
+              )}
+            >
+              {t.label} <span className="tabular text-muted">{isLoading ? "" : counts[t.id]}</span>
+            </button>
+          );
+        })}
+      </div>
 
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="relative w-full sm:w-[300px]">
+          <label htmlFor="listing-search" className="sr-only">Search by product name</label>
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-faint" strokeWidth={1.6} aria-hidden="true" />
+          <Input
+            id="listing-search"
+            className="h-9 pl-9"
+            placeholder="Search by product name"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </div>
+        <label htmlFor="platform-filter" className="sr-only">Platform</label>
+        <Select id="platform-filter" value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-auto min-w-[10rem]">
+          <option value="">All platforms</option>
+          {platforms.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </Select>
+        <p className="m-0 ml-auto text-[14px] text-muted tabular">
+          {isLoading ? "" : `${inTab.length} ${inTab.length === 1 ? "listing" : "listings"}`}
+        </p>
+      </div>
+
+      <div className="mt-4">
         {isLoading ? (
-          <SkeletonRows rows={8} cols={5} />
+          <SkeletonRows rows={6} cols={5} />
         ) : isError ? (
-          <p className="p-6 text-sm text-danger">
-            {errorMessage(error, "Failed to load listings.")}
-          </p>
-        ) : listings.length === 0 ? (
           <EmptyState
-            icon={ListChecks}
-            title="No listings match"
-            description="Try clearing the filters, or check a new listing."
-            action={
-              <Button as={Link} to="/app/ingest" size="sm">
-                Check a listing
-              </Button>
+            title="Couldn’t load listings."
+            description={errorMessage(error, "The API did not answer.")}
+            action={<Button variant="secondary" size="sm" onClick={() => refetch()}>Retry</Button>}
+          />
+        ) : inTab.length === 0 ? (
+          <EmptyState
+            title={listings.length === 0 && !search && !platform ? "No labels checked yet." : "No listings match these filters."}
+            description={
+              listings.length === 0 && !search && !platform
+                ? "Check a label and it appears here with its six declarations."
+                : "Clear the search or the platform filter to see every listing."
             }
+            action={<Button as={Link} to="/app/ingest" size="sm">Check a label</Button>}
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[720px] border-collapse text-left text-[14px]">
+              <caption className="sr-only">Listings</caption>
               <thead>
-                <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-subtle">
-                  <th className="px-4 py-3 font-semibold">Product</th>
-                  <th className="px-4 py-3 font-semibold">Platform</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Missing</th>
-                  <th className="px-4 py-3 font-semibold">Checked</th>
-                  <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                <tr className="text-[13px] text-muted">
+                  <th scope="col" className="w-[36%] pb-2 pr-4 font-normal">Product</th>
+                  <th scope="col" className="pb-2 pr-4 font-normal">Declarations</th>
+                  <th scope="col" className="pb-2 pr-4 font-normal">Status</th>
+                  <th scope="col" className="pb-2 pr-4 text-right font-normal">Found</th>
+                  <th scope="col" className="pb-2 pr-4 text-right font-normal">Checked</th>
+                  <th scope="col" className="w-10 pb-2"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody>
                 {rows.map((l) => (
-                  <tr key={l.id} className="transition-colors hover:bg-surface-2">
-                    <td className="px-4 py-3">
-                      <Link
-                        to={`/app/listings/${l.id}`}
-                        className="font-medium text-content hover:text-brand-fg"
-                      >
+                  <tr key={l.id} className="h-14 border-t border-rule hover:bg-raised">
+                    <td className="py-2 pr-4">
+                      <Link to={`/app/listings/${l.id}`} className="font-medium text-ink no-underline hover:text-blue">
                         {l.product_name}
                       </Link>
+                      <span className="block text-[13px] text-muted">{l.platform}</span>
                     </td>
-                    <td className="px-4 py-3 text-muted">{l.platform}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge compliant={l.compliant} />
+                    <td className="py-2 pr-4"><StampStrip missing={l.missing_fields} /></td>
+                    <td className="py-2 pr-4"><StatusBadge compliant={l.compliant} /></td>
+                    <td className="py-2 pr-4 text-right tabular">
+                      <span className="font-semibold text-ink">{l.total_fields - l.missing_count}</span>
+                      <span className="text-muted"> /{l.total_fields}</span>
                     </td>
-                    <td className="px-4 py-3">
-                      {l.missing_count === 0 ? (
-                        <span className="text-subtle">—</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {l.missing_fields.slice(0, 2).map((f) => (
-                            <Badge key={f} tone="danger">
-                              {fieldLabel(f)}
-                            </Badge>
-                          ))}
-                          {l.missing_fields.length > 2 && (
-                            <Badge tone="neutral">
-                              +{l.missing_fields.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-muted">
-                      {formatDate(l.scraped_at)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          as={Link}
-                          to={`/app/listings/${l.id}`}
-                          variant="ghost"
-                          size="sm"
-                          aria-label="View listing"
-                        >
-                          <Eye className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          aria-label="Delete listing"
-                          onClick={() => setToDelete(l)}
-                          className="text-danger hover:bg-danger-soft"
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
+                    <td className="py-2 pr-4 text-right text-muted tabular">{formatISODate(l.scraped_at)}</td>
+                    <td className="py-2 text-right">
+                      <button
+                        type="button"
+                        onClick={() => setToDelete(l)}
+                        aria-label={`Delete ${l.product_name}`}
+                        className="press inline-flex size-8 items-center justify-center rounded-[6px] text-faint hover:bg-pill-negative-bg hover:text-negative"
+                      >
+                        <Trash2 className="size-4" strokeWidth={1.6} aria-hidden="true" />
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {!isLoading && !isError && listings.length > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3 text-sm text-muted">
-            <div className="flex items-center gap-2">
-              <span>Rows per page</span>
-              <Select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  resetPage();
-                }}
-                className="h-8 w-auto py-0 text-xs"
-              >
-                {PAGE_SIZES.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="flex items-center gap-3">
-              <span>
-                {current * pageSize + 1}–
-                {Math.min((current + 1) * pageSize, listings.length)} of{" "}
-                {listings.length}
-              </span>
-              <div className="flex gap-1">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={current === 0}
-                  onClick={() => setPage(current - 1)}
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={current >= pageCount - 1}
-                  onClick={() => setPage(current + 1)}
-                  aria-label="Next page"
-                >
-                  <ChevronRight className="size-4" />
+            <StripKey className="mt-4 border-t border-rule pt-4" />
+            {inTab.length > rows.length && (
+              <div className="mt-4 flex items-center justify-between border-t border-rule pt-4 text-[14px] text-muted">
+                <span className="tabular">1–{rows.length} of {inTab.length}</span>
+                <Button variant="secondary" size="sm" onClick={() => setShownCount((n) => n + PAGE_SIZE)}>
+                  Show more
                 </Button>
               </div>
-            </div>
+            )}
           </div>
         )}
-      </Card>
+      </div>
 
       <ConfirmModal
         open={Boolean(toDelete)}
         onClose={() => setToDelete(null)}
         onConfirm={handleDelete}
         loading={del.isPending}
-        title="Delete listing?"
+        title="Delete this listing?"
         description={
           toDelete
-            ? `“${toDelete.product_name}” will be removed from listings and analytics. This can't be undone from the UI.`
+            ? `“${toDelete.product_name}” leaves the ledger and the analytics. The record is kept in the database but cannot be restored from here.`
             : ""
         }
-        confirmLabel="Delete"
+        confirmLabel="Delete listing"
       />
     </div>
   );

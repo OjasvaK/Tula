@@ -1,18 +1,16 @@
 import { Link } from "react-router-dom";
-import { ScrollText, HelpCircle } from "lucide-react";
-import { useRules } from "../hooks/useRules";
 import { PageHeader } from "../components/ui/PageHeader";
-import { Card, CardHeader, CardBody } from "../components/ui/Card";
 import { Accordion } from "../components/ui/Accordion";
+import { StampStrip } from "../components/stamp/StampStrip";
+import { DECLARATIONS } from "../lib/rules";
 import { FIELD_META } from "../lib/fieldMeta";
-import { fieldLabel } from "../lib/format";
 
 const PIPELINE = [
-  ["1", "Ingest", "You upload a label photo or give an image URL. Nothing is scraped from a marketplace."],
-  ["2", "Preprocess", "The image is de-skewed and thresholded to help the OCR."],
-  ["3", "OCR", "EasyOCR extracts the declaration text (Tesseract is the fast fallback baseline)."],
-  ["4", "Rule engine", "Six regex rules — one per Rule 6 declaration — run over the lower-cased text."],
-  ["5", "Result", "Each field is marked detected / not detected, with the matched snippet and the LMPC clause."],
+  ["You supply the image", "Upload a label photo or give an image address. Nothing is scraped from a marketplace."],
+  ["The image is prepared", "It is de-skewed and thresholded so the text stands out from the pack’s printing."],
+  ["EasyOCR reads it", "The raw text is kept with the listing; Tesseract is the comparison baseline."],
+  ["Six patterns decide", "One pattern per declaration runs over the lower-cased text."],
+  ["The sheet is issued", "Each declaration is postmarked with its clause, or overprinted when it is missing."],
 ];
 
 const FAQ = [
@@ -21,198 +19,125 @@ const FAQ = [
     a: "No. It only checks an image you provide. Crawling marketplace pages is out of scope by design.",
   },
   {
-    q: "Why is a compliant-looking label flagged?",
-    a: "The check is text-pattern based. If the OCR misreads a character, or the wording differs from the expected pattern (e.g. “Product of India” instead of “Country of Origin: India”), the field can read as missing. Open the listing detail and expand “Raw OCR text” to see exactly what was extracted.",
+    q: "Why is a label that looks complete flagged?",
+    a: "The check matches text patterns. If the OCR misreads a character, or the label words a declaration differently (“Product of India” rather than “Country of origin: India”), that declaration reads as missing. Open the listing and read the OCR text to see exactly what was extracted.",
   },
   {
-    q: "Why regex instead of machine learning?",
-    a: "Transparency. A regulator needs to point at the clause a listing fails, not a probability. New requirements are added as a YAML entry with its citation. ML is a later enhancement, not the core.",
+    q: "Why patterns instead of machine learning?",
+    a: "Because an inspector needs to point at the clause a listing fails, not at a probability. A new requirement is one YAML entry with its citation.",
   },
   {
-    q: "Can I undo a delete?",
-    a: "Deletes are soft — the row is hidden but its history is kept in the database. There's no undo in the UI; ask an admin to clear the deleted_at flag if needed.",
+    q: "What does the strip of six small stamps mean?",
+    a: (
+      <>
+        Each stamp is one declaration, in sheet order: MRP, net quantity, origin, care, address, month and year. A filled stamp was found; a pale stamp struck through in red is missing. This one is missing MRP and month and year:{" "}
+        <StampStrip missing={["mrp", "month_year"]} className="ml-1 align-middle" />
+      </>
+    ),
   },
   {
-    q: "The first check is slow — is something wrong?",
-    a: "No. The OCR model downloads once on first use and is then cached. Subsequent checks are a few seconds.",
+    q: "Can a delete be undone?",
+    a: "Deletes are soft: the record stays in the database with a deleted date, but there is no undo here.",
+  },
+  {
+    q: "Why is the first check slow?",
+    a: "The OCR model downloads once on first use and is cached afterwards. Later checks take a few seconds.",
   },
 ];
 
 const GLOSSARY = [
-  ["LMPC Rules 2011", "Legal Metrology (Packaged Commodities) Rules, 2011 — the regulation this tool checks against."],
-  ["Rule 6", "The clause listing the mandatory declarations every packaged commodity must carry."],
-  ["MRP", "Maximum Retail Price — the all-taxes-included ceiling price printed on the pack."],
-  ["Net quantity", "The contents by weight, volume, or count in standard metric units."],
-  ["PIN code", "The 6-digit Indian postal code; used here as a proxy for a complete manufacturer address."],
-  ["Country of origin", "Where the product was made — mandatory for imported goods and marketplace listings."],
-];
-
-const SHORTCUTS = [
-  ["Sidebar", "Click the logo area links, or the hamburger on mobile"],
-  ["Close a dialog", "Esc"],
-  ["Open a listing", "Click its product name or the eye icon"],
+  ["LMPC Rules 2011", "The Legal Metrology (Packaged Commodities) Rules, 2011, the regulation this tool checks against."],
+  ["Rule 6", "The rule listing the declarations every pre-packaged commodity must carry."],
+  ["Rule 6(10)", "Carries those declarations onto e-commerce listings, in force since 1 January 2018."],
+  ["MRP", "Maximum retail price, inclusive of all taxes."],
+  ["PIN code", "India’s six-digit postal code, used here as evidence of a complete manufacturer address."],
 ];
 
 export function HelpPage() {
-  const { data: rules = [] } = useRules();
-
-  const declarationItems = rules.map((r) => {
-    const meta = FIELD_META[r.field] || {};
-    return {
-      id: r.field,
-      icon: meta.icon,
-      title: fieldLabel(r.field),
-      content: (
-        <div className="space-y-3">
-          <p>
-            <span className="font-medium text-content">What it is: </span>
-            {r.description}.
-          </p>
-          {meta.why && (
-            <p>
-              <span className="font-medium text-content">Why it's required: </span>
-              {meta.why}
-            </p>
-          )}
-          <p>
-            <span className="font-medium text-content">Citation: </span>
-            {r.legal_reference}
-          </p>
-          {meta.example && (
-            <p>
-              <span className="font-medium text-content">
-                Example of compliant text:{" "}
-              </span>
-              <code className="rounded bg-surface-2 px-1.5 py-0.5 text-xs">
-                {meta.example}
-              </code>
-            </p>
-          )}
-          {meta.commonFailures && (
-            <div>
-              <p className="font-medium text-content">Common reasons it fails:</p>
-              <ul className="mt-1 list-disc space-y-0.5 pl-5">
-                {meta.commonFailures.map((f) => (
-                  <li key={f}>{f}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      ),
-    };
-  });
-
   return (
-    <div className="space-y-6">
+    <div className="max-w-[880px]">
       <PageHeader
         title="Help"
-        description="How the checker works, what each declaration means, and how to read a result."
+        description="How a check works, what each declaration means, and how to read a sheet."
       />
 
-      <Card>
-        <CardHeader title="What this tool does" />
-        <CardBody className="space-y-3 text-sm leading-relaxed text-muted">
-          <p>
-            It reads the mandatory Legal Metrology declarations off a packaged-
-            commodity label and reports which ones are present. It's built for a
-            regulator persona: every result is tied to the exact clause of{" "}
-            <span className="text-content">LMPC Rules 2011, Rule 6</span>, and the
-            rule engine is a readable set of patterns, not a model.
-          </p>
-          <p>
-            Start on{" "}
-            <Link to="/app/ingest" className="font-medium text-brand-fg">
-              Check a Listing
-            </Link>
-            , then browse results under{" "}
-            <Link to="/app/listings" className="font-medium text-brand-fg">
-              Listings
-            </Link>{" "}
-            and see aggregate trends under{" "}
-            <Link to="/app/analytics" className="font-medium text-brand-fg">
-              Analytics
-            </Link>
-            .
-          </p>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader title="How a check works" />
-        <CardBody>
-          <ol className="space-y-4">
-            {PIPELINE.map(([n, title, body]) => (
-              <li key={n} className="flex gap-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-xs font-bold text-brand-fg">
-                  {n}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-content">{title}</p>
-                  <p className="text-sm text-muted">{body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </CardBody>
-      </Card>
-
-      <section>
-        <div className="mb-3 flex items-center gap-2">
-          <ScrollText className="size-4 text-brand-fg" />
-          <h2 className="text-sm font-semibold text-content">
-            The six declarations
-          </h2>
-        </div>
-        <Accordion items={declarationItems} defaultOpen={0} />
+      <section aria-labelledby="h-how">
+        <h2 id="h-how" className="m-0 text-[18px] font-semibold text-ink">How a check works</h2>
+        <ol className="m-0 mt-3 list-decimal space-y-2 pl-5 text-[15px] leading-relaxed marker:text-muted">
+          {PIPELINE.map(([title, body]) => (
+            <li key={title} className="pl-1">
+              <span className="font-semibold text-ink">{title}.</span> <span className="text-ink">{body}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="m-0 mt-4 text-[15px] text-ink">
+          Start on{" "}
+          <Link to="/app/ingest" className="font-medium text-blue">Check a label</Link>, then work the results in{" "}
+          <Link to="/app/listings" className="font-medium text-blue">Listings</Link>.
+        </p>
       </section>
 
-      <section>
-        <div className="mb-3 flex items-center gap-2">
-          <HelpCircle className="size-4 text-brand-fg" />
-          <h2 className="text-sm font-semibold text-content">FAQ</h2>
-        </div>
+      <section aria-labelledby="h-six" className="mt-10">
+        <h2 id="h-six" className="m-0 text-[18px] font-semibold text-ink">The six declarations</h2>
+        <p className="m-0 mt-1 text-[15px] text-muted">
+          Rule 6 lists eight. The generic name and the unit sale price are not checked yet.
+        </p>
         <Accordion
-          items={FAQ.map((f, i) => ({
-            id: i,
-            title: f.q,
-            content: <p>{f.a}</p>,
-          }))}
+          className="mt-3"
+          defaultOpen={0}
+          items={DECLARATIONS.map((d) => {
+            const meta = FIELD_META[d.field] || {};
+            return {
+              id: d.field,
+              title: (
+                <>
+                  {d.name} <span className="font-normal text-muted tabular">{d.clause}</span>
+                </>
+              ),
+              content: (
+                <div className="space-y-2.5">
+                  <p className="m-0">{d.requires}</p>
+                  {meta.why && <p className="m-0 text-muted">{meta.why}</p>}
+                  <p className="m-0">
+                    <span className="font-semibold">Looks for:</span> {d.looksFor}
+                  </p>
+                  {meta.example && (
+                    <p className="m-0">
+                      <span className="font-semibold">Compliant wording:</span>{" "}
+                      <code className="rounded-[3px] bg-raised px-1.5 py-0.5 font-mono text-[14px]">{meta.example}</code>
+                    </p>
+                  )}
+                  {meta.commonFailures && (
+                    <div>
+                      <p className="m-0 font-semibold">Common reasons it reads as missing</p>
+                      <ul className="m-0 mt-1 list-disc space-y-0.5 pl-5">
+                        {meta.commonFailures.map((f) => <li key={f}>{f}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ),
+            };
+          })}
         />
       </section>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader title="Glossary" />
-          <CardBody className="p-0">
-            <dl className="divide-y divide-line">
-              {GLOSSARY.map(([term, def]) => (
-                <div key={term} className="px-5 py-3">
-                  <dt className="text-sm font-semibold text-content">{term}</dt>
-                  <dd className="text-sm text-muted">{def}</dd>
-                </div>
-              ))}
-            </dl>
-          </CardBody>
-        </Card>
+      <section aria-labelledby="h-faq" className="mt-10">
+        <h2 id="h-faq" className="m-0 text-[18px] font-semibold text-ink">Questions</h2>
+        <Accordion className="mt-3" items={FAQ.map((f, i) => ({ id: i, title: f.q, content: <p className="m-0">{f.a}</p> }))} />
+      </section>
 
-        <Card>
-          <CardHeader title="Getting around" />
-          <CardBody className="p-0">
-            <dl className="divide-y divide-line">
-              {SHORTCUTS.map(([action, how]) => (
-                <div
-                  key={action}
-                  className="flex items-center justify-between gap-4 px-5 py-3"
-                >
-                  <dt className="text-sm text-muted">{action}</dt>
-                  <dd className="text-sm font-medium text-content">{how}</dd>
-                </div>
-              ))}
-            </dl>
-          </CardBody>
-        </Card>
-      </div>
+      <section aria-labelledby="h-gloss" className="mt-10">
+        <h2 id="h-gloss" className="m-0 text-[18px] font-semibold text-ink">Glossary</h2>
+        <dl className="m-0 mt-3 rounded-[8px] border border-border">
+          {GLOSSARY.map(([term, def], i) => (
+            <div key={term} className={`grid gap-1 px-5 py-3 sm:grid-cols-[180px_1fr] sm:gap-6 ${i > 0 ? "border-t border-rule" : ""}`}>
+              <dt className="text-[15px] font-semibold text-ink">{term}</dt>
+              <dd className="m-0 text-[15px] text-ink">{def}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
     </div>
   );
 }
