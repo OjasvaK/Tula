@@ -8,3 +8,16 @@ build/
 .DS_Store
 *.egg-info/
 .claude/
+
+# Design-process scratch: screenshots, inspector reports, a throwaway browser profile
+.taste-skill/
+.impeccable/chrome-profile/
+.impeccable/review/
+.impeccable/mocks/
+.impeccable/questions/
+.impeccable/crops-review*.png
+.impeccable/brief-body.md
+.impeccable/decision-payload.json
+
+# Labels uploaded through the running app (stored with a uuid prefix)
+backend/sample_data/images/*_*

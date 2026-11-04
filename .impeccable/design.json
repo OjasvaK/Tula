@@ -1,0 +1,758 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-01T17:50:18.971Z",
+  "title": "Design System: Tula",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Security Paper",
+        "purpose": "Landing ground and body default.",
+        "canonical": "#f3f5f6",
+        "oklch": "oklch(96.9% 0.003 228.8)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#262627",
+          "#444546",
+          "#656667",
+          "#88898a",
+          "#adaeaf",
+          "#d0d1d1",
+          "#eeeeef"
+        ]
+      },
+      "frame": {
+        "role": "neutral",
+        "displayName": "Selvedge",
+        "purpose": "App frame: sidebar and top bar as one L.",
+        "canonical": "#edf1f4",
+        "oklch": "oklch(95.6% 0.006 239.8)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252727",
+          "#434547",
+          "#636769",
+          "#868a8c",
+          "#acaeb0",
+          "#d0d1d2",
+          "#eeeeef"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet White",
+        "purpose": "The working sheet, cards, inputs.",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#aeaeae",
+          "#d1d1d1",
+          "#eeeeee"
+        ]
+      },
+      "stamp-paper": {
+        "role": "neutral",
+        "displayName": "Stamp Paper",
+        "purpose": "The paper inside every stamp.",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#aeaeae",
+          "#d1d1d1",
+          "#eeeeee"
+        ]
+      },
+      "gutter": {
+        "role": "neutral",
+        "displayName": "Gutter",
+        "purpose": "The sheet between stamps; landing hero sheet tone.",
+        "canonical": "#e3e9ee",
+        "oklch": "oklch(93.1% 0.009 242.8)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#252728",
+          "#424548",
+          "#62676b",
+          "#858a8e",
+          "#abaeb1",
+          "#cfd1d3",
+          "#eeeeef"
+        ]
+      },
+      "raised": {
+        "role": "neutral",
+        "displayName": "Raised",
+        "purpose": "Row hover, disabled fields, inset panels.",
+        "canonical": "#f6f8f9",
+        "oklch": "oklch(97.8% 0.003 228.8)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#262627",
+          "#444546",
+          "#656667",
+          "#88898a",
+          "#adaeaf",
+          "#d0d1d1",
+          "#eeeeef"
+        ]
+      },
+      "active": {
+        "role": "neutral",
+        "displayName": "Active",
+        "purpose": "Active nav item, segmented track, ghost hover.",
+        "canonical": "#e3e9ee",
+        "oklch": "oklch(93.1% 0.009 242.8)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#252728",
+          "#424548",
+          "#62676b",
+          "#858a8e",
+          "#abaeb1",
+          "#cfd1d3",
+          "#eeeeef"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "purpose": "Card and container borders.",
+        "canonical": "#e2e7eb",
+        "oklch": "oklch(92.5% 0.008 241.7)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#252728",
+          "#424548",
+          "#62676a",
+          "#868a8d",
+          "#abaeb1",
+          "#cfd1d2",
+          "#eeeeef"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "purpose": "Table row rules and footer dividers.",
+        "canonical": "#edf0f3",
+        "oklch": "oklch(95.4% 0.005 247.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#262627",
+          "#434547",
+          "#646669",
+          "#87898c",
+          "#acaeb0",
+          "#d0d1d2",
+          "#eeeeef"
+        ]
+      },
+      "control": {
+        "role": "neutral",
+        "displayName": "Control Edge",
+        "purpose": "Input and secondary-button strokes; pending stamp frames.",
+        "canonical": "#c5ced6",
+        "oklch": "oklch(84.7% 0.015 244.7)",
+        "tonalRamp": [
+          "#0a0b0c",
+          "#242729",
+          "#40464b",
+          "#5f676e",
+          "#828a91",
+          "#a9afb3",
+          "#ced1d4",
+          "#edeff0"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Intaglio Ink",
+        "purpose": "Primary text; heavy ledger rule.",
+        "canonical": "#15233c",
+        "oklch": "oklch(25.7% 0.051 261.3)",
+        "tonalRamp": [
+          "#090b0e",
+          "#202731",
+          "#3a4559",
+          "#566784",
+          "#798aa6",
+          "#a3afc3",
+          "#cad1dd",
+          "#eceff4"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "purpose": "Secondary text, table headers.",
+        "canonical": "#475468",
+        "oklch": "oklch(44.3% 0.037 258.9)",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#22272e",
+          "#3c4654",
+          "#59677c",
+          "#7d8a9e",
+          "#a5afbd",
+          "#ccd1da",
+          "#eceff2"
+        ]
+      },
+      "faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "purpose": "Placeholders and idle icons.",
+        "canonical": "#5b6778",
+        "oklch": "oklch(51.0% 0.031 257.1)",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#22272d",
+          "#3e4651",
+          "#5b6778",
+          "#7e8a9b",
+          "#a6afba",
+          "#cdd1d8",
+          "#eceff2"
+        ]
+      },
+      "blue": {
+        "role": "primary",
+        "displayName": "Stamp Blue",
+        "purpose": "Brand, primary action, main data hue, focus, first series ink.",
+        "canonical": "#1f56a3",
+        "oklch": "oklch(46.1% 0.137 257.8)",
+        "tonalRamp": [
+          "#060b14",
+          "#132642",
+          "#204479",
+          "#2e65b3",
+          "#568ad5",
+          "#8cb0e4",
+          "#bed3f1",
+          "#e6effd"
+        ]
+      },
+      "blue-strong": {
+        "role": "primary",
+        "displayName": "Deep Stamp Blue",
+        "purpose": "Hover/pressed Stamp Blue; text on Blue Wash.",
+        "canonical": "#17447f",
+        "oklch": "oklch(39.0% 0.111 256.7)",
+        "tonalRamp": [
+          "#070b12",
+          "#17273d",
+          "#27456f",
+          "#3967a5",
+          "#608bc7",
+          "#92b0da",
+          "#c1d3eb",
+          "#e7effa"
+        ]
+      },
+      "blue-soft": {
+        "role": "primary",
+        "displayName": "Blue Wash",
+        "purpose": "Brand tint: sheet-value hover, brand badge, OCR evidence lines.",
+        "canonical": "#e4ecf7",
+        "oklch": "oklch(94.0% 0.017 256.3)",
+        "tonalRamp": [
+          "#0a0b0c",
+          "#24272a",
+          "#41454c",
+          "#606770",
+          "#838a93",
+          "#aaaeb5",
+          "#ced1d5",
+          "#edeef0"
+        ]
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Series Green",
+        "purpose": "Series ink (net quantity, month and year); positive status.",
+        "canonical": "#1f6b4e",
+        "oklch": "oklch(47.4% 0.088 163.6)",
+        "tonalRamp": [
+          "#060d0a",
+          "#142c21",
+          "#1f503c",
+          "#2c7658",
+          "#58997c",
+          "#8fb9a4",
+          "#c0d8cb",
+          "#e7f1ec"
+        ]
+      },
+      "sepia": {
+        "role": "secondary",
+        "displayName": "Series Sepia",
+        "purpose": "Series ink (country of origin).",
+        "canonical": "#7a4a1d",
+        "oklch": "oklch(45.6% 0.088 60.4)",
+        "tonalRamp": [
+          "#0f0a06",
+          "#342213",
+          "#5e3c1f",
+          "#8a592d",
+          "#ad7e55",
+          "#c8a68b",
+          "#e1cdbd",
+          "#f5ede6"
+        ]
+      },
+      "slate": {
+        "role": "secondary",
+        "displayName": "Series Slate",
+        "purpose": "Series ink (consumer care).",
+        "canonical": "#3d5566",
+        "oklch": "oklch(43.7% 0.041 239.7)",
+        "tonalRamp": [
+          "#090c0d",
+          "#1f282e",
+          "#374753",
+          "#516a7b",
+          "#758d9e",
+          "#a0b1bd",
+          "#c9d2d9",
+          "#ebeff2"
+        ]
+      },
+      "carmine": {
+        "role": "tertiary",
+        "displayName": "Overprint Carmine",
+        "purpose": "Overprints, missing strikes, negative status, destructive actions only.",
+        "canonical": "#b0173f",
+        "oklch": "oklch(49.1% 0.184 14.3)",
+        "tonalRamp": [
+          "#150608",
+          "#45121a",
+          "#7c192e",
+          "#b72144",
+          "#dc5469",
+          "#ed8f97",
+          "#f8c0c4",
+          "#ffe7e9"
+        ]
+      },
+      "postmark": {
+        "role": "tertiary",
+        "displayName": "Postmark Black",
+        "purpose": "Circular cancellations only.",
+        "canonical": "#23272f",
+        "oklch": "oklch(27.2% 0.016 264.3)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#25262a",
+          "#42454b",
+          "#616670",
+          "#858992",
+          "#abaeb4",
+          "#cfd1d5",
+          "#eeeef0"
+        ]
+      },
+      "pill-positive-bg": {
+        "role": "neutral",
+        "displayName": "Positive Pill",
+        "purpose": "Compliant badge ground.",
+        "canonical": "#e1f1e9",
+        "oklch": "oklch(94.4% 0.020 164.6)",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#232825",
+          "#3e4843",
+          "#5c6a63",
+          "#7f8d86",
+          "#a7b1ac",
+          "#cdd2d0",
+          "#edefee"
+        ]
+      },
+      "pill-positive-ink": {
+        "role": "neutral",
+        "displayName": "Positive Pill Ink",
+        "purpose": "Compliant badge text.",
+        "canonical": "#0f3d2c",
+        "oklch": "oklch(32.4% 0.058 164.6)",
+        "tonalRamp": [
+          "#080c0a",
+          "#1b2a23",
+          "#2f4c3f",
+          "#45715e",
+          "#6a9481",
+          "#99b6a8",
+          "#c5d5cd",
+          "#e9f0ed"
+        ]
+      },
+      "pill-negative-bg": {
+        "role": "neutral",
+        "displayName": "Negative Pill",
+        "purpose": "Flagged badge ground; paper of a missing mini stamp.",
+        "canonical": "#fbe8ed",
+        "oklch": "oklch(94.8% 0.022 359.7)",
+        "tonalRamp": [
+          "#0c0b0b",
+          "#2a2526",
+          "#4d4245",
+          "#716166",
+          "#948489",
+          "#b6abad",
+          "#d5cfd1",
+          "#f0edee"
+        ]
+      },
+      "pill-negative-ink": {
+        "role": "neutral",
+        "displayName": "Negative Pill Ink",
+        "purpose": "Flagged badge text.",
+        "canonical": "#7a0f2b",
+        "oklch": "oklch(37.7% 0.139 13.6)",
+        "tonalRamp": [
+          "#130809",
+          "#3e191e",
+          "#712a35",
+          "#a63d4e",
+          "#ca6572",
+          "#df979e",
+          "#efc5c7",
+          "#fce9ea"
+        ]
+      },
+      "pill-warning-bg": {
+        "role": "neutral",
+        "displayName": "Warning Pill",
+        "purpose": "Warning badge ground.",
+        "canonical": "#fff7e6",
+        "oklch": "oklch(97.8% 0.024 85.8)",
+        "tonalRamp": [
+          "#0c0b09",
+          "#292621",
+          "#49453b",
+          "#6c6557",
+          "#8f887a",
+          "#b2ada4",
+          "#d3d1cb",
+          "#efeeec"
+        ]
+      },
+      "pill-warning-ink": {
+        "role": "neutral",
+        "displayName": "Warning Pill Ink",
+        "purpose": "Warning badge text.",
+        "canonical": "#8a4b06",
+        "oklch": "oklch(47.9% 0.111 58.9)",
+        "tonalRamp": [
+          "#100905",
+          "#37200d",
+          "#643911",
+          "#945416",
+          "#b77946",
+          "#d0a482",
+          "#e5cbb8",
+          "#f7ece4"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Inscription",
+        "purpose": "Landing h1 sheet inscription; the close (clamp(40px,5.2vw,80px)) and footer nameplate (clamp(64px,15vw,224px)) scale up from it."
+      },
+      "headline": {
+        "displayName": "Section Headline",
+        "purpose": "Landing section headings, standing alone with no label above."
+      },
+      "denomination": {
+        "displayName": "Denomination",
+        "purpose": "The declared value on a stamp (30px large, 21px medium) and sheet tallies such as '3 of 6'."
+      },
+      "title": {
+        "displayName": "Page Title",
+        "purpose": "App page headings (Mukta 700 24px); card titles at 600 16px."
+      },
+      "figure": {
+        "displayName": "Lead Figure",
+        "purpose": "The lead KPI on a ledger line; other figures Mukta 500 24px."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Landing paragraphs, measured to 52-66ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text; app copy runs 14-15px."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Form labels, table body, small buttons."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Table headers, hints, badges, strip keys, stamp heads."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Only inside <pre><code>: raw OCR text and regex examples."
+      }
+    },
+    "shadows": [
+      {
+        "name": "float",
+        "value": "0 8px 24px rgba(21,35,60,0.12)",
+        "purpose": "Account menu and toasts."
+      },
+      {
+        "name": "tooltip",
+        "value": "0 4px 14px rgba(21,35,60,0.10)",
+        "purpose": "Chart tooltips."
+      },
+      {
+        "name": "dialog",
+        "value": "0 24px 48px -12px rgba(21,35,60,0.28)",
+        "purpose": "Modal, over a rgba(21,35,60,0.4) scrim."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Default easing for strikes, presses, entrances."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "Declared on :root for on-screen movement."
+      },
+      {
+        "name": "drawer",
+        "value": "320ms cubic-bezier(0.32, 0.72, 0, 1)",
+        "purpose": "Mobile navigation drawer slide."
+      },
+      {
+        "name": "strike",
+        "value": "260ms ease-out; scale 1.18 to 1 at -12deg, settles at opacity 0.88",
+        "purpose": "Postmark cancellation strike."
+      },
+      {
+        "name": "overprint",
+        "value": "240ms ease-out; scale 1.12 to 1 at -12deg",
+        "purpose": "Carmine overprint arrival."
+      },
+      {
+        "name": "line-in",
+        "value": "220ms ease-out; rise 6px",
+        "purpose": "Streamed OCR line arrival."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.97); transform 140ms ease-out, colors 160ms ease",
+        "purpose": "Every pressable; removed under reduced motion."
+      },
+      {
+        "name": "reveal",
+        "value": "rise 24px, 600ms ease-out, 75ms stagger",
+        "purpose": "Landing section entrances at 768px and wider without reduced motion; app screens never enter."
+      },
+      {
+        "name": "cancel-angle",
+        "value": "-12deg",
+        "purpose": "The one angle every postmark, overprint and strike uses."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ],
+    "perforation": [
+      {
+        "name": "perforated",
+        "value": "r 5px on a 3r pitch (alpha mask)",
+        "purpose": "Large stamps."
+      },
+      {
+        "name": "perforated-md",
+        "value": "r 4px",
+        "purpose": "Medium stamps."
+      },
+      {
+        "name": "perforated-lg",
+        "value": "r 4px, from 1024px only",
+        "purpose": "The app's working sheet."
+      },
+      {
+        "name": "perforated-sm",
+        "value": "r 3px",
+        "purpose": "Small stamps."
+      },
+      {
+        "name": "perforated-xs",
+        "value": "r 1.6px",
+        "purpose": "Mini stamps in strips and tallies; the wordmark."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action ink: Stamp Blue, near-square, press scales.",
+      "html": "<button class=\"ds-btn-primary\">Check a label</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border:0;border-radius:3px;background:var(--blue,#1f56a3);color:#fff;font:600 15px/1 Mukta,system-ui,sans-serif;cursor:pointer;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),background-color 160ms ease,color 160ms ease,border-color 160ms ease;}.ds-btn-primary:hover{background:var(--blue-strong,#17447f)}.ds-btn-primary:focus-visible{outline:2px solid var(--blue,#1f56a3);outline-offset:2px;}.ds-btn-primary:active{transform:scale(0.97)}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White with a Control Edge stroke, for the second choice.",
+      "html": "<button class=\"ds-btn-secondary\">Export CSV</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;height:36px;padding:0 16px;border:1px solid var(--control,#c5ced6);border-radius:3px;background:var(--sheet,#fff);color:var(--ink,#15233c);font:600 15px/1 Mukta,system-ui,sans-serif;cursor:pointer;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),background-color 160ms ease,color 160ms ease,border-color 160ms ease;}.ds-btn-secondary:hover{border-color:var(--faint,#5b6778);background:var(--raised,#f6f8f9)}.ds-btn-secondary:focus-visible{outline:2px solid var(--blue,#1f56a3);outline-offset:2px;}.ds-btn-secondary:active{transform:scale(0.97)}"
+    },
+    {
+      "name": "Sheet-Value Action",
+      "kind": "button",
+      "refersTo": "button-sheet-value",
+      "description": "The landing's headline action as a stamp-sheet value box in an engraved double frame.",
+      "html": "<a class=\"ds-sheet-value\" href=\"#\"><span class=\"ds-sheet-value-main\">Check a label <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></span><span class=\"ds-sheet-value-sub\">Upload a photo, get its sheet</span></a>",
+      "css": ".ds-sheet-value{display:inline-flex;flex-direction:column;padding:10px 20px;border:6px double var(--blue,#1f56a3);background:#fff;text-decoration:none;font-family:Mukta,system-ui,sans-serif;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),background-color 160ms ease,color 160ms ease,border-color 160ms ease;}.ds-sheet-value:hover{background:var(--blue-soft,#e4ecf7)}.ds-sheet-value:focus-visible{outline:2px solid var(--blue,#1f56a3);outline-offset:2px;}.ds-sheet-value:active{transform:scale(0.97)}.ds-sheet-value-main{display:inline-flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:var(--blue,#1f56a3)}.ds-sheet-value-sub{font-size:14px;color:var(--muted,#475468)}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Control Edge stroke, 6px corners, Stamp Blue focus, label above.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Image URL</span><input class=\"ds-input\" placeholder=\"https://example.com/label.jpg\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:8px;width:320px;font-family:Mukta,system-ui,sans-serif}.ds-field-label{font-size:14px;font-weight:500;color:var(--ink,#15233c)}.ds-input{height:40px;padding:0 12px;border:1px solid var(--control,#c5ced6);border-radius:6px;background:var(--sheet,#fff);color:var(--ink,#15233c);font:15px Mukta,system-ui,sans-serif;caret-color:var(--blue,#1f56a3);transition:border-color 160ms ease}.ds-input::placeholder{color:var(--faint,#5b6778)}.ds-input:hover{border-color:var(--faint,#5b6778)}.ds-input:focus{outline:none;border-color:var(--blue,#1f56a3)}.ds-input:focus-visible{outline:2px solid var(--blue,#1f56a3);outline-offset:1px}"
+    },
+    {
+      "name": "Status Badges",
+      "kind": "chip",
+      "refersTo": "badge-positive",
+      "description": "Tinted full pills; Compliant and Flagged are the only status words.",
+      "html": "<span class=\"ds-badge ds-badge-pos\">Compliant</span> <span class=\"ds-badge ds-badge-neg\">Flagged</span>",
+      "css": ".ds-badge{display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:999px;font:500 13px/1 Mukta,system-ui,sans-serif}.ds-badge-pos{background:var(--pill-positive-bg,#e1f1e9);color:var(--pill-positive-ink,#0f3d2c)}.ds-badge-neg{background:var(--pill-negative-bg,#fbe8ed);color:var(--pill-negative-ink,#7a0f2b)}"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Frame-tinted nav; the active item takes an Active wash.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-active\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"9\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\"/></svg>Overview</a><a class=\"ds-nav-item\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01\"/></svg>Listings</a></nav>",
+      "css": ".ds-nav{display:flex;flex-direction:column;gap:2px;width:204px;padding:12px;background:var(--frame,#edf1f4);font-family:Mukta,system-ui,sans-serif}.ds-nav-item{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:6px;font-size:15px;color:var(--muted,#475468);text-decoration:none;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),background-color 160ms ease,color 160ms ease,border-color 160ms ease;}.ds-nav-item:hover{background:rgba(227,233,238,0.6);color:var(--ink,#15233c)}.ds-nav-item:focus-visible{outline:2px solid var(--blue,#1f56a3);outline-offset:2px;}.ds-nav-active{background:var(--active,#e3e9ee);color:var(--ink,#15233c);font-weight:600}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat white container with a Hairline border and 3px corners.",
+      "html": "<section class=\"ds-card\"><h2 class=\"ds-card-title\">Most-missed declarations</h2><p class=\"ds-card-sub\">Across all checked listings</p></section>",
+      "css": ".ds-card{width:320px;padding:16px 20px 20px;border:1px solid var(--border,#e2e7eb);border-radius:3px;background:var(--sheet,#fff);font-family:Mukta,system-ui,sans-serif}.ds-card-title{margin:0;font-size:16px;font-weight:600;color:var(--ink,#15233c)}.ds-card-sub{margin:2px 0 0;font-size:14px;color:var(--muted,#475468)}"
+    },
+    {
+      "name": "Stamp (present and missing)",
+      "kind": "custom",
+      "refersTo": "stamp",
+      "description": "The signature: a perforated stamp in its series ink, postmarked when found, overprinted in carmine when missing.",
+      "html": "<div class=\"ds-stamps\"><figure class=\"ds-stamp\" style=\"--stamp-ink:var(--green,#1f6b4e)\"><div class=\"ds-stamp-frame\"><div class=\"ds-stamp-head\"><span>R.6(1)(c)</span><span>Tula</span></div><div class=\"ds-stamp-denom\">200 g</div><figcaption class=\"ds-stamp-name\">Net quantity</figcaption></div><svg class=\"ds-postmark\" viewBox=\"0 0 230 120\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"#23272f\"><circle cx=\"60\" cy=\"60\" r=\"52\" stroke-width=\"3\"/><circle cx=\"60\" cy=\"60\" r=\"36\" stroke-width=\"1.6\"/><path stroke-width=\"3\" d=\"M118 30q14-9 28 0t28 0t28 0t28 0M118 50q14-9 28 0t28 0t28 0t28 0M118 70q14-9 28 0t28 0t28 0t28 0M118 90q14-9 28 0t28 0t28 0t28 0\"/></g><text x=\"60\" y=\"66\" text-anchor=\"middle\" fill=\"#23272f\" font-family=\"Mukta,sans-serif\" font-weight=\"800\" font-size=\"17\">6(1)(c)</text></svg></figure><figure class=\"ds-stamp\" style=\"--stamp-ink:var(--sepia,#7a4a1d)\"><div class=\"ds-stamp-frame\"><div class=\"ds-stamp-head\"><span>R.6(1)(h)</span><span>Tula</span></div><div class=\"ds-stamp-denom\">&mdash;</div><figcaption class=\"ds-stamp-name\">Country of origin</figcaption></div><div class=\"ds-overprint\" aria-hidden=\"true\"><span class=\"ds-bar\"></span><span class=\"ds-over-word\">Not declared</span><span class=\"ds-bar\"></span></div></figure></div>",
+      "css": ".ds-stamps{display:flex;gap:12px;padding:12px;background:var(--gutter,#e3e9ee)}.ds-stamp{--r:4px;-webkit-mask:radial-gradient(var(--r),#0000 98%,#000) round calc(-1.5*var(--r)) calc(-1.5*var(--r))/calc(3*var(--r)) calc(3*var(--r)),linear-gradient(#000 0 0) 50%/calc(100% - 3*var(--r)) calc(100% - 3*var(--r)) no-repeat;mask:radial-gradient(var(--r),#0000 98%,#000) round calc(-1.5*var(--r)) calc(-1.5*var(--r))/calc(3*var(--r)) calc(3*var(--r)),linear-gradient(#000 0 0) 50%/calc(100% - 3*var(--r)) calc(100% - 3*var(--r)) no-repeat;position:relative;margin:0;width:200px;padding:8px;background:var(--stamp-paper,#fff);font-family:Mukta,system-ui,sans-serif}.ds-stamp-frame{display:flex;flex-direction:column;gap:6px;min-height:150px;padding:10px;border:6px double var(--stamp-ink)}.ds-stamp-head{display:flex;justify-content:space-between;font-size:12px;font-weight:700;line-height:1;color:var(--stamp-ink);font-variant-numeric:tabular-nums lining-nums}.ds-stamp-denom{margin-top:auto;font-family:'Rozha One',Georgia,serif;font-size:21px;line-height:1.05;color:var(--stamp-ink);font-variant-numeric:tabular-nums lining-nums}.ds-stamp-name{font-size:14px;font-weight:700;color:var(--ink,#15233c)}.ds-postmark{position:absolute;right:3%;top:22%;width:58%;opacity:.88;transform:rotate(-12deg)}.ds-overprint{position:absolute;inset-inline:8%;top:30%;display:flex;flex-direction:column;align-items:center;gap:6px;transform:rotate(-12deg)}.ds-bar{width:100%;height:4px;background:var(--carmine,#b0173f)}.ds-over-word{font-family:'Rozha One',Georgia,serif;font-size:20px;line-height:1;white-space:nowrap;color:var(--carmine,#b0173f)}"
+    },
+    {
+      "name": "Stamp Strip",
+      "kind": "custom",
+      "refersTo": "stamp",
+      "description": "Six mini stamps in sheet order: series ink when found, carmine strike when missing.",
+      "html": "<span class=\"ds-strip\" role=\"img\" aria-label=\"3 of 6 found; missing MRP, Origin, Mfg date\"><span class=\"ds-mini ds-miss\" style=\"--i:#1f56a3\"></span><span class=\"ds-mini\" style=\"--i:#1f6b4e\"></span><span class=\"ds-mini ds-miss\" style=\"--i:#7a4a1d\"></span><span class=\"ds-mini\" style=\"--i:#3d5566\"></span><span class=\"ds-mini\" style=\"--i:#1f56a3\"></span><span class=\"ds-mini ds-miss\" style=\"--i:#1f6b4e\"></span></span>",
+      "css": ".ds-strip{display:inline-flex;gap:3px;padding:8px;background:var(--sheet,#fff)}.ds-mini{--r:1.6px;-webkit-mask:radial-gradient(var(--r),#0000 98%,#000) round calc(-1.5*var(--r)) calc(-1.5*var(--r))/calc(3*var(--r)) calc(3*var(--r)),linear-gradient(#000 0 0) 50%/calc(100% - 3*var(--r)) calc(100% - 3*var(--r)) no-repeat;mask:radial-gradient(var(--r),#0000 98%,#000) round calc(-1.5*var(--r)) calc(-1.5*var(--r))/calc(3*var(--r)) calc(3*var(--r)),linear-gradient(#000 0 0) 50%/calc(100% - 3*var(--r)) calc(100% - 3*var(--r)) no-repeat;position:relative;display:block;width:18px;height:22px;padding:3px;background:var(--stamp-paper,#fff)}.ds-mini::before{content:'';display:block;width:100%;height:100%;background:var(--i)}.ds-miss{background:var(--pill-negative-bg,#fbe8ed)}.ds-miss::before{background:transparent}.ds-miss::after{content:'';position:absolute;left:-2px;right:-2px;top:50%;height:2.5px;background:var(--carmine,#b0173f);transform:translateY(-50%) rotate(-12deg)}"
+    },
+    {
+      "name": "Ledger-Line KPI Strip",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Headline figures between a heavy ink rule and a hairline, divided by 1px rules; no icons, no tiles.",
+      "html": "<dl class=\"ds-ledger\"><div><dt>Listings checked</dt><dd class=\"ds-lead\">24</dd></div><div><dt>Flagged</dt><dd>9</dd></div><div><dt>Compliance rate</dt><dd>62.5<span>%</span></dd></div></dl>",
+      "css": ".ds-ledger{display:grid;grid-template-columns:repeat(3,1fr);margin:0;width:560px;border-top:2px solid var(--ink,#15233c);border-bottom:1px solid var(--border,#e2e7eb);font-family:Mukta,system-ui,sans-serif}.ds-ledger>div{padding:16px 20px 16px 0}.ds-ledger>div+div{padding-left:20px;border-left:1px solid var(--border,#e2e7eb)}.ds-ledger dt{font-size:14px;color:var(--muted,#475468)}.ds-ledger dd{margin:4px 0 0;font-size:24px;font-weight:500;line-height:1.25;color:var(--ink,#15233c);font-variant-numeric:tabular-nums lining-nums}.ds-ledger dd.ds-lead{font-size:32px;font-weight:600}.ds-ledger dd span{margin-left:4px;font-size:15px;font-weight:400;color:var(--muted,#475468)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Definitive Stamp Sheet",
+    "overview": "Every label check is issued as a sheet of six perforated stamps, one per Rule 6 declaration. A declaration that was found is printed in its series ink and cancelled with a circular postmark carrying its clause; one that was not found is overprinted \"Not declared\" in carmine. The material is philatelic and governmental: cool security paper, intaglio-dark ink, engraved double frames, guilloche underprint, perforated edges. It is a single light world, because the use scene is a desk in daylight; there is no dark theme.\n\nTwo registers share the world. The landing page (Persuade) is the sheet at full size: Rozha One inscriptions, large stamps whose picture windows hold real label crops, and the OCR text streaming in the selvedge while cancellations strike. The app (Operate) is a framed sheet: a tinted frame forms an L of sidebar and top bar, and the work happens on a white sheet inset from the window, perforated at its edge on desktop. Inside the app, density and alignment do the work: ledger-line figures, ruled tables, stamp strips as the per-row glyph of compliance.\n\nStamp material is a means of explanation, not ornament. Every stamp, strip and tally maps to a declaration and its clause; postmarks and overprints never appear without a declaration behind them. Perforation also edges the sheets themselves (the working sheet, the wordmark's stamp), because the sheet is the world.",
+    "keyCharacteristics": [
+      "Cool security-paper grounds (no cream), deep blue-black ink, stamp blue as the single action color.",
+      "A definitive series of four stamp inks (blue, green, sepia, slate) assigned per declaration; carmine reserved for overprints.",
+      "Perforation by alpha mask, engraved 6px double frames, guilloche underprint, postmarks struck at one fixed angle (-12deg).",
+      "Rozha One for inscriptions and denominations, Mukta for everything read, tabular lining figures for every number.",
+      "Flat paper: depth comes from tint steps and perforation, shadows only on floating layers."
+    ],
+    "rules": [
+      {
+        "name": "The Carmine Reserve Rule",
+        "body": "Carmine marks absence only: overprints, strikes across missing stamps, negative status and destructive actions. If it is not cancelling or flagging something, it is not carmine.",
+        "section": "colors"
+      },
+      {
+        "name": "The Definitive Series Rule",
+        "body": "Declarations take their ink from the series (blue, green, sepia, slate) in sheet order, and the ink travels with the declaration everywhere: stamp frame, denomination, picture window, mini stamp, tally.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Action Ink Rule",
+        "body": "Stamp Blue is the only color for primary actions and links. Series inks are for declarations, never for buttons.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Figure Rule",
+        "body": "Every number that can be compared (counts, dates, clauses, prices, KPIs, denominations) is set with tabular lining figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "No uppercase labels, no tracked-out small caps, no label above a heading. Headings stand alone; table headers are plain Muted Ink at caption size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Paper Doesn't Float Rule",
+        "body": "Sheets, cards, stamps and tables sit flat; a shadow means the element can be dismissed.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** give each declaration its series ink (blue, green, sepia, slate) and carry it through every stamp, strip and tally.",
+      "**Do** strike every postmark, overprint and strike line at the shared -12deg cancel angle.",
+      "**Do** cut stamp and sheet edges with the perforation mask and give perforated elements at least 2r of padding.",
+      "**Do** set every comparable number in tabular lining figures.",
+      "**Do** build app screens as a framed sheet: frame tint L, white sheet inset 8px, perforated from 1024px.",
+      "**Do** present headline figures as a ledger line (2px Ink rule above, Hairline below, 1px dividers).",
+      "**Do** keep monospace inside `<pre><code>` for raw OCR text and code samples only."
+    ],
+    "donts": [
+      "**Don't** use carmine for anything that is not an overprint, a missing mark, a negative status or a destructive action.",
+      "**Don't** add a dark theme; this world is a desk in daylight.",
+      "**Don't** use cream or warm paper grounds; the paper is cool security white.",
+      "**Don't** put shadows on stamps, sheets, cards or tables.",
+      "**Don't** put an uppercase or tracked label above a heading.",
+      "**Don't** strike a postmark or overprint, or print a stamp, strip or tally, without a declaration behind it.",
+      "**Don't** let a series ink color a button or link; actions are Stamp Blue."
+    ]
+  }
+}

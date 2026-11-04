@@ -1,0 +1,53 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-11-01T11:15:33.034Z",
+        "reason": "Claude: decision-round sketch, not shipped; the violet ink was dropped from the built palette"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-sixpack.html"
+        ],
+        "createdAt": "2026-11-01T11:15:33.482Z",
+        "reason": "Claude: unchosen decision-round sketch, not shipped"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/model-pick.html"
+        ],
+        "createdAt": "2026-11-01T17:53:02.722Z",
+        "reason": "Claude: unchosen decision-round sketch in its own world's fonts; not shipped, gitignored"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-patent.html"
+        ],
+        "createdAt": "2026-11-01T17:53:03.215Z",
+        "reason": "Claude: unchosen decision-round sketch in its own world's fonts; not shipped, gitignored"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-sixpack.html"
+        ],
+        "createdAt": "2026-11-01T17:53:03.740Z",
+        "reason": "Claude: unchosen decision-round sketch in its own world's fonts; not shipped, gitignored"
+      }
+    ]
+  }
+}
