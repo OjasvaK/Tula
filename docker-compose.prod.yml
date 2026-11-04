@@ -1,0 +1,44 @@
+# Production overrides for a single server. Layer it on the base file:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# Values come from .env (copy .env.prod.example). Caddy is the only service
+# exposed to the internet; it terminates HTTPS and proxies to the others.
+services:
+  db:
+    ports: !reset []
+    environment:
+      # Only applied when the pgdata volume is first created.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    restart: unless-stopped
+
+  backend:
+    ports: !reset []
+    environment:
+      DATABASE_URL: postgresql+psycopg2://compliance:${POSTGRES_PASSWORD}@db:5432/compliance_db
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
+      ALLOWED_ORIGINS: https://${APP_DOMAIN:?set APP_DOMAIN in .env}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      args:
+        VITE_API_URL: https://${API_DOMAIN:?set API_DOMAIN in .env}
+        VITE_DEMO_USERNAME: ${DEMO_USERNAME:?set DEMO_USERNAME in .env}
+        VITE_DEMO_PASSWORD: ${DEMO_PASSWORD:?set DEMO_PASSWORD in .env}
+    ports: !reset []
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    depends_on: [frontend, backend]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      API_DOMAIN: ${API_DOMAIN}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Issued certificates; losing these means re-requesting them.
+      - caddy_data:/data
+    restart: unless-stopped
+
+volumes:
+  caddy_data:

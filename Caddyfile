@@ -1,0 +1,10 @@
+# Domains come from .env via docker-compose.prod.yml. Caddy fetches and
+# renews the HTTPS certificates for both on its own.
+{$APP_DOMAIN} {
+	encode gzip
+	reverse_proxy frontend:80
+}
+
+{$API_DOMAIN} {
+	reverse_proxy backend:8000
+}

@@ -11,6 +11,11 @@ COPY . .
 # name ("backend") which only resolves inside the compose network.
 ARG VITE_API_URL=http://localhost:8000
 ENV VITE_API_URL=$VITE_API_URL
+# The account the dashboard auto-signs in as. It ships in the bundle, so a
+# deploy passes a throwaway demo login here, never a real password.
+ARG VITE_DEMO_USERNAME=admin
+ARG VITE_DEMO_PASSWORD=dev-password-123
+ENV VITE_DEMO_USERNAME=$VITE_DEMO_USERNAME VITE_DEMO_PASSWORD=$VITE_DEMO_PASSWORD
 RUN npm run build
 
 FROM nginx:alpine
