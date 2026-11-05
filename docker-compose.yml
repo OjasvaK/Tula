@@ -26,9 +26,6 @@ services:
     ports: ["8000:8000"]
     volumes:
       - backend_uploads:/app/sample_data/images
-      # Persists EasyOCR's downloaded model files across container
-      # recreations so they aren't re-fetched from the internet every time.
-      - easyocr_models:/root/.EasyOCR
 
   frontend:
     build:
@@ -44,4 +41,3 @@ services:
 volumes:
   pgdata:
   backend_uploads:
-  easyocr_models:

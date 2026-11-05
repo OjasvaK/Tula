@@ -6,6 +6,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from app.config import with_psycopg2
 from app.models import Base
 
 # this is the Alembic Config object, which provides
@@ -20,7 +21,9 @@ if config.config_file_name is not None:
 # Allow DATABASE_URL env var to override alembic.ini, matching app/database.py
 db_url = os.getenv("DATABASE_URL")
 if db_url:
-    config.set_main_option("sqlalchemy.url", db_url)
+    # set_main_option goes through ConfigParser, so a literal % (e.g. a
+    # URL-encoded password character) must be doubled.
+    config.set_main_option("sqlalchemy.url", with_psycopg2(db_url).replace("%", "%%"))
 
 target_metadata = Base.metadata
 
